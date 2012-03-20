@@ -8,7 +8,7 @@ if strcmp(rule,'EXP_WINDOW')
     
     for i = 1:length(mg_spike_times)
         t = mg_spike_times(i);
-        weight_changes = weight changes + parameters.amplitude * ...
+        weight_changes = weight_changes + parameters.amplitude * ...
             ((times < t) .* exp((times -t)/parameters.tau)) * rates;
     end
 
