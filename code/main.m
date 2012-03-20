@@ -52,7 +52,7 @@ for i=1:length(gc_files)
     gc_voltages(:,i) = interp1(gc_times, gc_info.values, times);
 end
 
-% convert to rates
+%% convert to rates
 gc_rates = zeros(size(gc_voltages));
 %rate_parameters = struct('r0', 10, 'DeltaV', 5);
 rate_parameters = struct('power',1.5,'v0',0);
@@ -111,8 +111,18 @@ for i=1:length(plasticity_files)
     X = cat(1, X, X_i);
 end
 
+% penalize differences between adjacent terms
+penalty = 0.0;
+for i=1:(length(learning_window_times)-1)
+    X_i = zeros(1,length(learning_window_times) + 1);
+    X_i(i) = penalty;
+    X_i(i+1) = - penalty;
+    X = cat(1, X, X_i);
+end
+
 pinvX = pinv(X);
-learning_rule = pinvX * voltage_changes;
+learning_rule = pinvX * ...
+    cat(1, voltage_changes, zeros(length(learning_window_times)-1, 1));
 estimated_voltage_changes = X * learning_rule;
 
 figure;
