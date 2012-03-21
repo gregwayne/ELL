@@ -1,4 +1,4 @@
-function idxs = find_spike_indices(voltage_trace)
+function [idxs,spikes] = find_spike_indices(voltage_trace)
 
     LV                  = length(voltage_trace);
     

@@ -6,8 +6,9 @@ raw_gc_filenames = {...
 % make list of files
 raw_gc_files = get_file_list(raw_gc_filenames);
 
-GCs = {};
-SPs = {};
+GCs     = {};
+SPs     = {};
+EODs    = {}; 
 
 for i=1:length(raw_gc_files)
    
@@ -32,25 +33,48 @@ for i=1:length(raw_gc_files)
         raw_gc.lowgain.units    = 'mV';
     end
     
-    GCs{i}      = raw_gc;
+    GCs{i}              = raw_gc;     
+    [spidxs,spikes]     = find_spike_indices(raw_gc.lowgain.values);    
+    SPs{i}              = spidxs;
     
-    % TESTING
-    LT = 100000;
-    figure(1);
+    % Find trial markers
+    EOD_diffs   = raw_gc.cmdfilt.times(2:end) ...
+                            - raw_gc.cmdfilt.times(1:(end-1));
+    EOD_diffs(end+1) = raw_gc.lowgain.start ...
+                           + raw_gc.lowgain.length*raw_gc.lowgain.interval; 
+    
+    min_diff    = min(EOD_diffs);
+    idx_diff    = floor(min_diff/raw_gc.lowgain.interval)-1;
+    if idx_diff < 1
+        error('Trial with no separation.');
+    end
+    
+    EOD_idxs    = floor((raw_gc.cmdfilt.times/raw_gc.lowgain.interval) ...
+                                                -raw_gc.lowgain.start)+1;
+    EODs{i}     = EOD_idxs;
+    
+    av_voltage_trace    = zeros(idx_diff,1);
+    summed_spikes       = zeros(idx_diff,1);
+    NT                  = length(raw_gc.cmdfilt.times);
+    for j=1:(NT-1) % bothered by edge effect -- so cutting off last sample
+        id                  = EOD_idxs(j);
+        av_voltage_trace    = av_voltage_trace ...
+                               + raw_gc.lowgain.values(id:(id+idx_diff-1));
+        summed_spikes       = summed_spikes + spikes(id:(id+idx_diff-1));
+    end
+        
+    av_voltage_trace        = av_voltage_trace/(NT-1);
+    summed_spikes           = summed_spikes/(NT-1);
+
+    % Note: Ann says that some cells have unrecorded EODs
     subplot(10,1,i);
-    plot(raw_gc.lowgain.values(1:LT))
+    plot(av_voltage_trace,'b');
     hold on;
-    
-    spidxs = find_spike_indices(raw_gc.lowgain.values(1:LT));
-    plot(spidxs,raw_gc.lowgain.values(spidxs),'.r');
-    
-    SPs{i}      = spidxs;
-    
-    % TODO
-    % The EOD times are in raw_gc.cmdfilt.times
-    % Need to find trial markers and minimum trial lengths
-    % Then need to average traces over these trials
-    % and fit probability of spiking based on the voltages
+    %plot(raw_gc.lowgain.values(EODs{i}(1):(EODs{i}(1)+idx_diff)),'g');
+    %[tidxs,tspikes] = find_spike_indices(raw_gc.lowgain.values(EODs{i}(1):(EODs{i}(1)+idx_diff)));
+    %plot(tidxs,summed_spikes(tidxs),'.r');
+    pos_idxs = find(summed_spikes>0);
+    plot(pos_idxs,summed_spikes(pos_idxs),'.m');
     
 end
 
