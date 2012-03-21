@@ -20,42 +20,20 @@ plasticity_filenames = {...
     '../dataformodel/plasticity/20111213/*.mat',...
     '../dataformodel/plasticity/20111220/*.mat'};
 
-% make list of files
+% make lists of files
 gc_files = get_file_list(granule_cell_filenames);
-
 plasticity_files = get_file_list(plasticity_filenames);
 
 % find the maximum and minimum times
-min_time = -Inf;
-max_time = Inf;
-for i=1:length(gc_files);
-    gc_info = importdata(char(gc_files(i)));
-    times = gc_info.start + gc_info.interval*((1:gc_info.length)-1);
-    
-    min_time = max(min_time, times(1));
-    max_time = min(max_time, times(length(times)));
-end
-for i=1:length(plasticity_files)
-    p_info = importdata(char(plasticity_files(i)));
-    times = p_info.start + p_info.interval*((1:p_info.length)-1);
-    min_time = max(min_time, times(1));
-    max_time = min(max_time, times(length(times)));
-end
-interval = 1e-3;
-times = min_time:interval:max_time;
-%% create matrices for granule cell voltages and firing rates
-% create array of the granule cell voltages
-gc_voltages = zeros(length(times), length(gc_files));
-for i=1:length(gc_files)
-    gc_info = importdata(char(gc_files(i)));
-    gc_times = gc_info.start + gc_info.interval*((1:gc_info.length)-1);
-    gc_voltages(:,i) = interp1(gc_times, gc_info.values, times);
-end
+times = get_time_range([gc_files, plasticity_files]);
+
+% create matrices for granule cell voltages and firing rates
+gc_voltages = extract_voltages(gc_files, times);
 
 %% convert to rates
 gc_rates = zeros(size(gc_voltages));
 %rate_parameters = struct('r0', 10, 'DeltaV', 5);
-rate_parameters = struct('power',1.5,'v0',0);
+rate_parameters = struct('power',1,'v0',2);
 
 figure;
 for i=1:size(gc_voltages,2)
@@ -84,7 +62,7 @@ for i=1:length(plasticity_files)
 end
 
 %% fit the learning rule by least squares
-learning_window_times = -0.1:0.005:0.1;
+learning_window_times = -0.05:0.005:0.05;
 
 % construct vector by concatenating voltage changes at each delay
 voltage_changes = [];
@@ -112,7 +90,7 @@ for i=1:length(plasticity_files)
 end
 
 % penalize differences between adjacent terms
-penalty = 0.0;
+penalty = 1;
 for i=1:(length(learning_window_times)-1)
     X_i = zeros(1,length(learning_window_times) + 1);
     X_i(i) = penalty;
@@ -126,4 +104,18 @@ learning_rule = pinvX * ...
 estimated_voltage_changes = X * learning_rule;
 
 figure;
-plot(learning_window_times, learning_rule(1:(length(learning_rule)-1)));
+plot(learning_window_times, learning_rule(1:(length(learning_rule)-1))+...
+    learning_rule(length(learning_rule)));
+
+%% plot resulting plasticity curves based on learned weights
+figure;
+for i=1:length(plasticity_files)
+    
+    subplot(ceil(length(plasticity_files)/3), 3, i);
+    plot(times, ...
+        voltage_changes(((i-1)*length(times)+1):(i*length(times))), ...
+        times, ...
+        estimated_voltage_changes(((i-1)*length(times)+1):(i*length(times))));
+
+    title(delays(i));
+end
