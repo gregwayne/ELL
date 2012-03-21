@@ -67,14 +67,19 @@ for i=1:length(raw_gc_files)
     summed_spikes           = summed_spikes/(NT-1);
 
     % Note: Ann says that some cells have unrecorded EODs
+    
+    %% Use Bayes' Rule to get p(spike|voltage) histogram
+    % p(spike|voltage) = p(voltage|spike)*p(spike)/p(voltage)
     subplot(10,1,i);
-    plot(av_voltage_trace,'b');
-    hold on;
-    %plot(raw_gc.lowgain.values(EODs{i}(1):(EODs{i}(1)+idx_diff)),'g');
-    %[tidxs,tspikes] = find_spike_indices(raw_gc.lowgain.values(EODs{i}(1):(EODs{i}(1)+idx_diff)));
-    %plot(tidxs,summed_spikes(tidxs),'.r');
-    pos_idxs = find(summed_spikes>0);
-    plot(pos_idxs,summed_spikes(pos_idxs),'.m');
+    pos_idxs                = find(summed_spikes>0);
+    [N,X]                   = hist(av_voltage_trace,10);
+    p_spike                 = sum(summed_spikes)/length(summed_spikes);
+    W                       = N/sum(N); % normalized number in bin
+    v_given_spikes          = av_voltage_trace(pos_idxs);
+    [M]                     = hist(v_given_spikes,X);
+    Q                       = M/sum(M);
+    plot(X,p_spike*Q./W);
+    axis([-80,-20,0,2e-2]);
     
 end
 
