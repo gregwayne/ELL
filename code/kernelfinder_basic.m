@@ -3,7 +3,6 @@ rcell=loader_means(pth);
 tmax=3000;
 rmat=cell2mat(cellfun(@(x) [x(1:min(length(x),tmax))' x(end)*ones(1,max(tmax-length(x),0))]',rcell,'UniformOutput',false))';
 
-
 ncells=size(rmat,1);
 
 rmat=rmat(randperm(size(rmat,1)),:);
