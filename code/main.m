@@ -33,7 +33,7 @@ gc_voltages = extract_voltages(gc_files, times);
 %% convert to rates
 gc_rates = zeros(size(gc_voltages));
 %rate_parameters = struct('r0', 10, 'DeltaV', 5);
-rate_parameters = struct('power',1,'v0',2);
+rate_parameters = struct('power',1,'v0',2, 'slope',1);
 
 figure;
 for i=1:size(gc_voltages,2)
