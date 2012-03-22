@@ -6,7 +6,7 @@ if strcmp(method, 'EXP')
 end
 
 if strcmp(method, 'POWER')
-    spike_rates = (voltages > parameters.v0) .* ...
+    spike_rates = parameters.slope * (voltages > parameters.v0) .* ...
         (voltages - parameters.v0) .^ parameters.power;
 end
 
