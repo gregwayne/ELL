@@ -8,28 +8,13 @@ num_plasticity_results = size(voltage_changes, 2);
 % vecotrize the voltage changes
 voltage_changes = reshape(voltage_changes, [], 1);
 
-% Construct synaptic kernel
+% Convolve rates with synaptic kernel
 tau_fast = 0.003;
 tau_slow = 0.02;
 dt = gc_times(2) - gc_times(1);
-filter_times = (-5*tau_slow):dt:(5*tau_slow);
-synaptic_kernel = (filter_times > 0) .* (exp(-filter_times/tau_slow) - exp(-filter_times/tau_fast));
-synaptic_kernel = synaptic_kernel / sum(synaptic_kernel);
-figure;
-plot(filter_times, synaptic_kernel);
+convolved_rates = convolve_with_synaptic_kernel(gc_rates, dt, tau_fast, tau_slow);
 
-% convolve firing rates with synaptic kernel
-convolved_rates = zeros(size(gc_rates));
-for i=1:size(gc_rates,2)
-    convolved_rates(:,i) = conv(gc_rates(:,i), synaptic_kernel, 'same');
-end
-
-for i=1:10
-    figure;
-    plot(gc_times, gc_rates(:,i), gc_times, convolved_rates(:,i));
-end
-
-% make the matrix X sucht that DeltaV = X * F
+% make the matrix X sucht that DeltaV = X * Learning_Rule
 X = [];
 for i=1:num_plasticity_results
     R_d_T = zeros(size(gc_rates,2), length(learning_window_times) + 1);
