@@ -72,17 +72,36 @@ for i=1:length(raw_gc_files)
     % p(spike|voltage) = p(voltage|spike)*p(spike)/p(voltage)
     subplot(10,1,i);
     pos_idxs                = find(summed_spikes>0);
-    [N,X]                   = hist(av_voltage_trace,10);
+    [N,VS]                  = hist(av_voltage_trace,30);
     p_spike                 = sum(summed_spikes)/length(summed_spikes);
     W                       = N/sum(N); % normalized number in bin
     v_given_spikes          = av_voltage_trace(pos_idxs);
-    [M]                     = hist(v_given_spikes,X);
+    [M]                     = hist(v_given_spikes,VS);
     Q                       = M/sum(M);
-    plot(X,p_spike*Q./W);
+    plot(VS,p_spike*Q./W);
     axis([-80,-20,0,2e-2]);
+    
+    psp{i}                  = {VS,p_spike*Q./W};
     
 end
 
-%% Maximum Likelihood
-% TODO: Compute log-likelihood and gradient w.r.t. parameters
-% Optimize convert_voltages_to_spike_rates.m
+%% Minimize Error from Parameters
+addpath('minFunc');
+options.display = 'on';
+options.method  = 'pnewton0';
+options.maxIter = 100;
+theta           = [-70;1;1e-1];
+VS              = psp{1}{1};
+PS              = psp{1}{2};
+
+[theta,cst]     = minFunc(@(par) FitCost(VS,PS,par),theta);
+
+parameters.v0       = theta(1);
+parameters.power    = theta(2);
+parameters.slope    = theta(3);
+
+figure(2);
+plot(VS,convert_voltages_to_spike_rates(VS,'POWER',parameters),'r');
+hold on;
+plot(VS,PS,'b');
+axis([-80,-20,0,2e-2]);
