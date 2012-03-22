@@ -48,60 +48,31 @@ hold off;
 %% fit each plasticity trace will least squares
 figure;
 pinv_gc_rates = pinv(gc_rates);
+delays = [];
+voltage_changes = zeros(length(times),length(plasticity_files));
 for i=1:length(plasticity_files)
     p_info = importdata(char(plasticity_files(i)));
     p_times = p_info.start + p_info.interval*((1:p_info.length)-1);
     
-    voltage_change = interp1(p_times, p_info.values, times)';
+    voltage_changes(:,i) = interp1(p_times, p_info.values, times);
+    delays = [delays, p_info.delay];
 
-    weight_changes = pinv_gc_rates * voltage_change;
+    weight_changes = pinv_gc_rates * voltage_changes(:,i);
     fitted_voltage_change =  gc_rates * weight_changes;
     subplot(ceil(length(plasticity_files)/3), 3, i);
-    plot(times, voltage_change, times, fitted_voltage_change);
+    plot(times, voltage_changes(:,i), times, fitted_voltage_change);
     title(p_info.delay);
 end
 
 %% fit the learning rule by least squares
 learning_window_times = -0.05:0.005:0.05;
+penalty = 1;
 
 % construct vector by concatenating voltage changes at each delay
-voltage_changes = [];
-delays = [];
-for i=1:length(plasticity_files)
-    p_info = importdata(char(plasticity_files(i)));
-    p_times = p_info.start + p_info.interval*((1:p_info.length)-1);
-    voltage_changes = ...
-        [voltage_changes; interp1(p_times, p_info.values, times)'];
-    delays = [delays, p_info.delay];
-end
 
-% make the matrix X sucht that DeltaV = X * F
-X = [];
-for i=1:length(plasticity_files)
-    R_d_T = zeros(size(gc_rates,2), length(learning_window_times) + 1);
-    for j = 1:size(gc_rates,2)
-        R_d_T(j,:) = [interp1(times - delays(i), gc_rates(:,j)', ...
-            learning_window_times, 'nearest', 'extrap'), ...
-            sum(gc_rates(:,j))]';
-    end
-    % TODO: Convolve with synaptic kernel
-    X_i = gc_rates * R_d_T;
-    X = cat(1, X, X_i);
-end
-
-% penalize differences between adjacent terms
-penalty = 1;
-for i=1:(length(learning_window_times)-1)
-    X_i = zeros(1,length(learning_window_times) + 1);
-    X_i(i) = penalty;
-    X_i(i+1) = - penalty;
-    X = cat(1, X, X_i);
-end
-
-pinvX = pinv(X);
-learning_rule = pinvX * ...
-    cat(1, voltage_changes, zeros(length(learning_window_times)-1, 1));
-estimated_voltage_changes = X * learning_rule;
+[learning_rule, predicted_voltage_changes] = ...
+    fit_learning_rule_by_least_squares(gc_rates, times, ...
+    voltage_changes, delays, learning_window_times, penalty);
 
 figure;
 plot(learning_window_times, learning_rule(1:(length(learning_rule)-1))+...
@@ -112,10 +83,8 @@ figure;
 for i=1:length(plasticity_files)
     
     subplot(ceil(length(plasticity_files)/3), 3, i);
-    plot(times, ...
-        voltage_changes(((i-1)*length(times)+1):(i*length(times))), ...
-        times, ...
-        estimated_voltage_changes(((i-1)*length(times)+1):(i*length(times))));
+    plot(times, voltage_changes(:,i), ...
+        times, predicted_voltage_changes(:,i));
 
     title(delays(i));
 end
