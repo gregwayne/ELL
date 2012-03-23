@@ -88,10 +88,9 @@ end
 %% Minimize Error from Parameters
 addpath('minFunc');
 options.display = 'on';
-options.method  = 'pnewton0';
+options.method  = 'pcg';
 options.maxIter = 1000;
-options.TolX    = 1e-30;
-theta0          = [-63;1.5;0.9e-4];
+theta0          = [-62.5;1.5;7.7356e-05];
 VS              = psp{1}{1};
 PS              = psp{1}{2};
 
@@ -101,16 +100,15 @@ parameters.v0       = theta(1);
 parameters.power    = theta(2);
 parameters.slope    = theta(3);
 
-parameters2.v0       = theta0(1);
-parameters2.power    = theta0(2);
-parameters2.slope    = theta0(3);
+parameters0.v0      = theta0(1);
+parameters0.power   = theta0(2);
+parameters0.slope   = theta0(3);
 
-FitCost(VS,PS,theta0)
-FitCost(VS,PS,theta)
+[c0,g0]             = FitCost(VS,PS,theta0);
 
 figure(2);
 plot(VS,PS,'b');
 hold on;
 plot(VS,convert_voltages_to_spike_rates(VS,'POWER',parameters),'r');
-plot(VS,convert_voltages_to_spike_rates(VS,'POWER',parameters2),'g');
+plot(VS,convert_voltages_to_spike_rates(VS,'POWER',parameters0),'g');
 hold off;

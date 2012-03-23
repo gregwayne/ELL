@@ -1,6 +1,6 @@
 function grd = FiniteDifference(LossFn,theta)
 
-    eps     = 1e-4;
+    eps     = 1e-3;
     grd     = zeros(length(theta),1);
     Id      = eye(length(theta));
     
