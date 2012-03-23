@@ -25,7 +25,7 @@ gc_files = get_file_list(granule_cell_filenames);
 plasticity_files = get_file_list(plasticity_filenames);
 
 % find the maximum and minimum times
-times = get_time_range([gc_files, plasticity_files]);
+times = get_time_range(plasticity_files, 'INTERSECTION');
 
 % create matrices for granule cell voltages and firing rates
 gc_voltages = extract_voltages(gc_files, times);
@@ -66,7 +66,7 @@ end
 
 %% fit the learning rule by least squares
 learning_window_times = -0.05:0.005:0.05;
-penalty = 1;
+penalty = 10;
 
 % construct vector by concatenating voltage changes at each delay
 
@@ -87,4 +87,19 @@ for i=1:length(plasticity_files)
         times, predicted_voltage_changes(:,i));
 
     title(delays(i));
+end
+
+%% test applying the plasticity rule
+
+stdp_voltage_changes = zeros(size(voltage_changes));
+weight_changes = zeros(size(gc_rates, 2), size(voltage_changes,2));
+learning_rule_parameters = struct('potentiation_per_spike', 2e-4, 'amplitude', -1e-3, 'tau', 0.01)
+figure;
+title('Application of anti STDP rule')
+for i=1:length(delays)
+    weight_changes(:,i) = apply_plasticity_rule(times, gc_rates, delays(i), 'EXP_WINDOW', learning_rule_parameters);
+    stdp_voltage_changes(:,i) = convolve_with_synaptic_kernel(gc_rates, times(2) - times(1), 0.003, 0.02) ...
+        * weight_changes(:,i);
+    subplot(ceil(length(plasticity_files)/3), 3, i);
+    plot(times, voltage_changes(:,i), times, stdp_voltage_changes(:,i));
 end
