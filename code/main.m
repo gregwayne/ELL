@@ -66,7 +66,7 @@ end
 
 %% fit the learning rule by least squares
 learning_window_times = -0.05:0.005:0.05;
-penalty = 10;
+penalty = 30;
 
 % construct vector by concatenating voltage changes at each delay
 
@@ -81,25 +81,41 @@ plot(learning_window_times, learning_rule(1:(length(learning_rule)-1))+...
 %% plot resulting plasticity curves based on learned weights
 figure;
 for i=1:length(plasticity_files)
-    
     subplot(ceil(length(plasticity_files)/3), 3, i);
     plot(times, voltage_changes(:,i), ...
         times, predicted_voltage_changes(:,i));
-
     title(delays(i));
 end
 
 %% test applying the plasticity rule
-
-stdp_voltage_changes = zeros(size(voltage_changes));
-weight_changes = zeros(size(gc_rates, 2), size(voltage_changes,2));
-learning_rule_parameters = struct('potentiation_per_spike', 2e-4, 'amplitude', -1e-3, 'tau', 0.01)
+synaptic_kernel_parameters = struct('tau_fast', 0.003, 'tau_slow', 0.02);
+[learning_rule_parameters, predicted_voltage_changes] = fit_exp_learning_rule(gc_rates, times, voltage_changes, delays, synaptic_kernel_parameters);
 figure;
-title('Application of anti STDP rule')
-for i=1:length(delays)
-    weight_changes(:,i) = apply_plasticity_rule(times, gc_rates, delays(i), 'EXP_WINDOW', learning_rule_parameters);
-    stdp_voltage_changes(:,i) = convolve_with_synaptic_kernel(gc_rates, times(2) - times(1), 0.003, 0.02) ...
-        * weight_changes(:,i);
+title('Optimal exponential learning rule predictions')
+for i=1:length(plasticity_files)
     subplot(ceil(length(plasticity_files)/3), 3, i);
-    plot(times, voltage_changes(:,i), times, stdp_voltage_changes(:,i));
+    plot(times, voltage_changes(:,i), ...
+        times, predicted_voltage_changes(:,i));
+    title(delays(i));
 end
+
+figure;
+learning_window_times = -0.1:(times(2)-times(1)):0.1;
+fit_exp_window = learning_rule_parameters.non_associative_weight + ...
+    learning_rule_parameters.pre_amp * (learning_window_times < 0) .* exp(learning_window_times / learning_rule_parameters.tau_pre) + ...
+    learning_rule_parameters.post_amp * (learning_window_times > 0) .* exp(-learning_window_times / learning_rule_parameters.tau_post);
+plot(learning_window_times, fit_exp_window);
+
+
+%stdp_voltage_changes = zeros(size(voltage_changes));
+%weight_changes = zeros(size(gc_rates, 2), size(voltage_changes,2));
+%learning_rule_parameters = struct('potentiation_per_spike', 1e-1, 'amplitude', -2.0, 'tau', 0.01)
+%figure;
+%title('Application of anti STDP rule')
+%for i=1:length(delays)
+%    weight_changes(:,i) = apply_plasticity_rule(times, gc_rates, delays(i), 'EXP_WINDOW', learning_rule_parameters);
+%    stdp_voltage_changes(:,i) = convolve_with_synaptic_kernel(gc_rates, times(2) - times(1), 0.003, 0.02) ...
+%        * weight_changes(:,i);
+%    subplot(ceil(length(plasticity_files)/3), 3, i);
+%    plot(times, voltage_changes(:,i), times, stdp_voltage_changes(:,i));
+%end
