@@ -89,19 +89,28 @@ end
 addpath('minFunc');
 options.display = 'on';
 options.method  = 'pnewton0';
-options.maxIter = 100;
-theta           = [-70;1;1e-1];
+options.maxIter = 1000;
+options.TolX    = 1e-30;
+theta0          = [-63;1.5;0.9e-4];
 VS              = psp{1}{1};
 PS              = psp{1}{2};
 
-[theta,cst]     = minFunc(@(par) FitCost(VS,PS,par),theta);
+[theta,cst]     = minFunc(@(par) FitCost(VS,PS,par),theta0);
 
 parameters.v0       = theta(1);
 parameters.power    = theta(2);
 parameters.slope    = theta(3);
 
+parameters2.v0       = theta0(1);
+parameters2.power    = theta0(2);
+parameters2.slope    = theta0(3);
+
+FitCost(VS,PS,theta0)
+FitCost(VS,PS,theta)
+
 figure(2);
-plot(VS,convert_voltages_to_spike_rates(VS,'POWER',parameters),'r');
-hold on;
 plot(VS,PS,'b');
-axis([-80,-20,0,2e-2]);
+hold on;
+plot(VS,convert_voltages_to_spike_rates(VS,'POWER',parameters),'r');
+plot(VS,convert_voltages_to_spike_rates(VS,'POWER',parameters2),'g');
+hold off;
