@@ -12,12 +12,13 @@ end
 
 % extract mean responses from files
 count=1;
-meanV=cell(1);
+meanV=cell(1,2);
 for i=1:length(files)
     for j=1:length(files(i).data)
-        temp=struct2cell(load([pth '/' files(i).celltype '/' files(i).data(j).name]));
+        temp=struct2cell(load([pth '/' folders(i).name '/' files(i).data(j).name]));
         temp=temp{1};
-        meanV{count}=temp.values;
+        meanV{count,1}=files(i).celltype;
+        meanV{count,2}=temp.values;
         count=count+1;
     end
 end

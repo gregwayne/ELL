@@ -1,0 +1,7 @@
+vm + times of ALL commands and in some cases spike times.
+
+
+
+20110209_008.....spikes in this file are due to current injections
+
+20120213_016....two snippets from this cell one early no spikes, on elater in rec with spikes
