@@ -26,8 +26,8 @@ for i=1:ncells %loop over cells
 end
 
 % look to see if it worked
-figure(66);
-ind=8;
+figure(66);clf;
+ind=1;
 hold on;
 plot(dat{ind}');
 plot(mean(dat{ind}),'k','linewidth',2)
