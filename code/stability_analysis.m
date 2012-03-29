@@ -1,23 +1,23 @@
-function stability_analysis(rates, times_c)
+function stability_analysis(rates_in, times)
 close all;
 
-%times_c = times;
-%rates = [];
-for i = 1:size(gc_rates,2)
-    if sum(gc_rates(:,i)) > 0
-        rates = cat(2, rates, gc_rates(:,i) / sum(gc_rates(:,i)) / dt);
+% discard rates that are always zero
+rates = [];
+for i = 1:size(rates_in,2)
+    if sum(rates_in(:,i)) > 0
+        rates = cat(2, rates, rates_in(:,i));
     end
 end
 
 num_neurons = size(rates,2);
-dt = times_c(2) - times_c(1);
+dt = times(2) - times(1);
 
 % periodize the rates, epsp functions, and learning window
-zero_idx = find(times_c == 0);
+zero_idx = find(times == 0);
 rates = rates(zero_idx:size(rates,1), :);
-times_c = times_c(zero_idx:length(times_c));
+times = times(zero_idx:length(times));
 
-epsp_shape = exp(-times_c / 0.02) - exp(-times_c / 0.002);
+epsp_shape = exp(-times / 0.02) - exp(-times / 0.002);
 epsp_shape = epsp_shape / sum(epsp_shape) / dt;
 plasticity_window = -epsp_shape;
 
