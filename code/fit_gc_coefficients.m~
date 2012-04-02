@@ -1,0 +1,14 @@
+%addpath minFunc/
+%options.display = 'on';
+%options.method  = 'lbfgs';
+%options.maxIter = 1000;
+
+%theta0          = rand(3,1);
+
+%[theta,cst]     = minFunc(@(par) gc_loss_grad(par),theta0);
+
+eps=0.01;
+
+for e=0:eps:1
+    for m=0:eps:1
+        for 
