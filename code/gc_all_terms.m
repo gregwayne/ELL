@@ -7,7 +7,7 @@ function [all_terms_calc,all_terms_meas] = gc_all_terms(e,m,p)
     nEP     = 12;
     nPM     = 0;
     nEMP    = 0;
-    nN      = 12;
+    nN      = 14;
     
     all_terms_meas      = [nE,nM,nP,nEM,nEP,nPM,nEMP,nN];
 
