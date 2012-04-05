@@ -13,7 +13,7 @@ for i=1:ndat
     hold on;
     plot(tran,resp(i,:),'g');
     z(i,:)=-k*stim(i,:)';
-    z(i,:)=z(i,:)*sqrt(var(resp(i,:)))/sqrt(var(z(i,:)));
+    z(i,:)=z(i,:)/sqrt(var(z(i,:)));
     
     z(i,:)=z(i,:)-mean(z(i,:)); %scaling/centering of z: kosher?
     

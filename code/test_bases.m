@@ -15,10 +15,10 @@ NCs=zeros(ncells);
 
 C=zeros(ncells);
 
-rtemp=rates;
-rtemp(cellfun(@isempty,strfind(celltypes,'PCA')),:)=0;
-% rtemp=rates-rtemp;
-C=rtemp*rtemp'/1e9;
+% rtemp=rates;
+% rtemp(cellfun(@isempty,strfind(celltypes,'PCA')),:)=0;
+% % rtemp=rates-rtemp;
+% C=rtemp*rtemp'/1e9;
 
 % C=rates*rates'+NCs+diag(vars);
 
