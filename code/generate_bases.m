@@ -1,0 +1,43 @@
+function [celltypes,bfns] = generate_bases(type,varargin)
+% let's make simplified basis functions and see how changing them affect
+% the kernel!
+% basis types:
+% raw
+% thr (pass threshold value)
+
+% I am bad at parameter-fitting, so as a first go let's just make everyone
+% binary. Next I'll try accounting for cell response variability (still
+% assume NC's are zero, because they probably are!)
+
+rcell=loader_means('../DATA2');
+ncells=length(rcell);
+tmax=4500;
+bfns=zeros(ncells,tmax);
+
+for i=1:ncells
+    celltime=length(rcell{i,2});
+    offset=0;
+    temp= [rcell{i,2}(offset+1:min(tmax+offset,celltime)); rcell{i,2}(end)*ones(max(tmax-celltime+offset,0),1)];
+
+    switch type
+        case 'raw'
+            bfns(i,:)=temp-mean(temp);
+        case 'thr'
+            vmin=min(rcell{i,2});
+            vmax=max(rcell{i,2});
+            thrval=.5; %safety default value
+            if(~length(varargin))
+                if(i==1)
+                    disp('warning: no threshold value provided; using 0.5 default');
+                end
+            else
+                thrval = varargin{1};
+            end
+            thr=(vmax-vmin)*thrval + vmin;
+            bfns(i,:) = double(temp>thr);
+        otherwise
+            disp 'error: define your basis type!';
+    end
+end
+
+celltypes=rcell(:,1);
