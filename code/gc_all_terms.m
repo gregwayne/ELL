@@ -1,15 +1,4 @@
-function [all_terms_calc,all_terms_meas] = gc_all_terms(e,m,p)
-
-    nE      = 101;
-    nM      = 4;
-    nP      = 7;
-    nEM     = 20;
-    nEP     = 12;
-    nPM     = 0;
-    nEMP    = 0;
-    nN      = 14;
-    
-    all_terms_meas      = [nE,nM,nP,nEM,nEP,nPM,nEMP,nN];
+function [all_terms_calc] = gc_all_terms(e,m,p)
 
     n       = 1 - e - m - p;
 

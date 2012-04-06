@@ -1,7 +1,7 @@
-function cst = gc_loss(e,m,p)
+function cst = gc_loss(e,m,p, all_terms_meas)
 
-    [calc,meas] = gc_all_terms(e,m,p);    
-    nT          = sum(meas);    
-    cst         = sum((meas-nT*calc).^2./abs(nT*calc));
+    [calc] = gc_all_terms(e,m,p);    
+    nT          = sum(all_terms_meas);    
+    cst         = sum((all_terms_meas-nT*calc).^2./abs(nT*calc));
 
 end
