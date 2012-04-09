@@ -11,9 +11,27 @@ dt = gc_times(2) - gc_times(1);
 convolved_rates = convolve_with_synaptic_kernel(gc_rates, dt, ...
     synaptic_kernel_parameters.tau_fast, synaptic_kernel_parameters.tau_slow);
 
+
 % Minimize over tau_pre and tau_post
 objective_function = @(tau) ls_err(tau, gc_rates, gc_times, voltage_changes, delays, convolved_rates);
-tau = fminunc(objective_function, [2e-2, 2e-2]);
+
+% Global grid search
+tau_pre_values = 10.^(linspace(-3,0,10));
+tau_post_values = 10.^(linspace(-3,0,10));
+min_achieved_err = Inf;
+for i=1:length(tau_pre_values)
+    for j=1:length(tau_post_values)
+        tmp_tau = [tau_pre_values(i), tau_post_values(j)];
+        tmp_err = objective_function(tmp_tau);
+        if tmp_err < min_achieved_err
+            min_achieved_err = tmp_err;
+            tau = tmp_tau
+        end
+    end
+end
+
+% Local minimization
+tau = fminunc(objective_function, tau); %simulannealbnd(objective_function, [2e-2, 2e-2]);
 
 % calculate predicted voltages for optimal tau_pre and tau_post
 tau_pre = tau(1);
@@ -44,7 +62,6 @@ learning_rule_parameters = struct('tau_pre', tau_pre, 'tau_post', tau_post, ...
     'non_associative_weight', learning_rule(3));
 
 end
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % OBJECTIVE FUNCTION TO BE MINIMIZED %

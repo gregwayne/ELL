@@ -30,16 +30,28 @@ times = get_time_range(plasticity_files, 'INTERSECTION');
 % create matrices for granule cell voltages and firing rates
 gc_voltages = extract_voltages(gc_files, times);
 
+% analyze_voltage_trace_distribution(gc_voltages, times);
+
 %% convert to rates
 gc_rates = zeros(size(gc_voltages));
 %rate_parameters = struct('r0', 10, 'DeltaV', 5);
-rate_parameters = struct('power',1,'v0',2, 'slope',1);
+%rate_parameters = struct('power',1.5,'v0',1, 'slope',1);
+rate_parameters = struct('threshold',0.8,'amplitude',100);
+
+% figure;
+% for i=1:size(gc_voltages,2)
+%     title('GC Voltages');
+%     plot(times, gc_voltages(:,i));
+%     hold all;
+% end
+% hold off;
 
 figure;
 for i=1:size(gc_voltages,2)
+    title('GC RATES');
     baseline = mean(gc_voltages(1:100,i));
     gc_rates(:,i) = convert_voltages_to_spike_rates(...
-        gc_voltages(:,i) - baseline, 'POWER', rate_parameters);
+        gc_voltages(:,i) - baseline, 'THRESHOLD', rate_parameters);
     plot(times, gc_rates(:,i));
     hold all;
 end
