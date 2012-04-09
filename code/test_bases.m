@@ -1,24 +1,44 @@
 % [celltypes, bfns]=generate_bases('raw');
-[celltypes, bfns]=generate_bases('thr',.8);
+[celltypes, bfns]=generate_bases('2thr',.5, .8); %first is PCA, 2nd is others
+% [celltypes, bfns]=generate_bases('thr',.6);
 ncells=size(bfns,1);
 
-smk=10000;
-rates=smoothts(bfns,'g',smk*5,smk);
+smk=500;
+smk2=1000;
+rates=bfns;
+indother=cellfun(@isempty,strfind(celltypes,'PCA'));
+indPCA=setdiff(1:ncells,find(indother));
+indPCAstrict=find(strcmp(celltypes,'PCA'));
+% rates(indPCA,400:900)=rates(indPCA,400:900)*5;
+% 
+rates(indPCA,:)=smoothts(rates(indPCA,:),'g',smk2*5,smk2);
+rates(indother,:)=smoothts(rates(indother,:),'g',smk*5,smk);
+% rates=rates+.05;
 
+
+% rates(indPCA,:)=[];ncells=size(rates,1);
 
 vars=zeros(ncells,1);
 % vars=mean(rates,2);
-% vars(strcmp(celltypes,'PCA'))=1;
+% vars(strcmp(celltypes,'PCA'))=2;
 % vars(~strcmp(celltypes,'PCA'))=50;
 
 NCs=zeros(ncells);
+pCI=.5; %pretend some cells have strong common input!
+indCI=indPCA(randperm(length(indPCA)));
+indCI=indCI(1:length(indCI)*pCI);
+NCs(indCI,:)=1;
+NCs=NCs.*NCs';
+
 
 C=zeros(ncells);
+C=C+NCs;
+% C=C+diag(vars);
 
 % rtemp=rates;
-% rtemp(cellfun(@isempty,strfind(celltypes,'PCA')),:)=0;
-% % rtemp=rates-rtemp;
-% C=rtemp*rtemp'/1e9;
+% rtemp(indother,:)=rtemp(indPCA,:)/20;
+% rtemp=rates-rtemp;
+% C=rtemp*rtemp'+diag(vars);
 
 % C=rates*rates'+NCs+diag(vars);
 
@@ -28,6 +48,7 @@ k=makekernel(rates,C);
 
 
 %plot stuff!
-figure(1);imagesc(rates);title('basis functions!')
-% figure(2);imagesc(k);title('kernel!')
+tran=(1:4500)*5e-5;
+figure(1);imagesc(tran,1:124,rates);title('basis functions!')
+figure(2);imagesc(tran,tran,k);title('kernel!')
 check_LR(k);

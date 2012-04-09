@@ -8,7 +8,7 @@ if(det(C)~=0)
 else
     eps=1e-5;
     Cinv = (C+eye(length(C))*eps)^-1;
-    disp('warning, Cinv was close to singular');
+%     disp('warning, Cinv was close to singular');
 end
 
 K = rates'*Cinv*rates;

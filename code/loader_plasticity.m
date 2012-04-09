@@ -1,5 +1,10 @@
-function [stim resp tran]=loader_plasticity();
-pth='../dataformodel/plasticity/20111220';
+function [stim resp tran]=loader_plasticity(day)
+switch day
+    case 1
+        pth='../dataformodel/plasticity/20111213';
+    otherwise
+        pth='../dataformodel/plasticity/20111220';
+end
 files = dir(pth);
 files = files(find(1-cellfun(@isempty,strfind({files.name},'.mat'))));
 nfiles=length(files);
@@ -12,7 +17,8 @@ for i=1:nfiles
     temp=struct2cell(load([pth '/' files(i).name]));
     temp=temp{1};
     stim(i,:)=0;
-    stim(i,round(max((temp.delay-temp.start)/temp.interval,1)))=1; %should it be temp.delay-temp.start or temp.delay?
+    stimtime=round(max((temp.delay-temp.start)/temp.interval,1));
+    stim(i,stimtime)=100; %should it be temp.delay-temp.start or temp.delay?
     stimtimes(i)=temp.delay-temp.start;
     resp(i,:)=temp.values;
 end
