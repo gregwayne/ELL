@@ -76,6 +76,8 @@ for i=1:length(plasticity_files)
     title(p_info.delay);
 end
 
+unique_delays = sort(unique(delays));
+
 %% fit the learning rule by least squares
 learning_window_times = -0.05:0.005:0.05;
 penalty = 30;
@@ -100,34 +102,32 @@ for i=1:length(plasticity_files)
 end
 
 %% test applying the plasticity rule
-synaptic_kernel_parameters = struct('tau_fast', 0.003, 'tau_slow', 0.02);
-[learning_rule_parameters, predicted_voltage_changes] = fit_exp_learning_rule(gc_rates, times, voltage_changes, delays, synaptic_kernel_parameters);
-figure;
-title('Optimal exponential learning rule predictions')
-for i=1:length(plasticity_files)
-    subplot(ceil(length(plasticity_files)/3), 3, i);
-    plot(times, voltage_changes(:,i), ...
-        times, predicted_voltage_changes(:,i));
-    title(delays(i));
+for whether_nonassociative_plasticity = 0:1
+    synaptic_kernel_parameters = struct('tau_fast', 0.003, 'tau_slow', 0.02);
+    [learning_rule_parameters, predicted_voltage_changes] = fit_exp_learning_rule(...
+        gc_rates, times, voltage_changes, delays, synaptic_kernel_parameters, ...
+        whether_nonassociative_plasticity);
+    figure;
+    hold on;
+    title('Optimal exponential learning rule predictions')
+    for i=1:length(unique_delays)
+        subplot(ceil(length(unique_delays)/2), 2, i);
+        for delay_idx = find(delays == unique_delays(i))
+            plot(times, voltage_changes(:,delay_idx),'b');, ...
+            hold on;
+            plot(times, predicted_voltage_changes(:,delay_idx),'g');
+            hold on;
+        end
+        title(unique_delays(i));
+    end
+    subplot(ceil(length(unique_delays)/2), 2, i+1);
+    learning_window_times = -0.1:(times(2)-times(1)):0.1;
+    fit_exp_window = learning_rule_parameters.non_associative_weight + ...
+        learning_rule_parameters.pre_amp * (learning_window_times < 0) .* exp(learning_window_times / learning_rule_parameters.tau_pre) + ...
+        learning_rule_parameters.post_amp * (learning_window_times > 0) .* exp(-learning_window_times / learning_rule_parameters.tau_post);
+    plot(learning_window_times, fit_exp_window);
+    hold on;
+    plot(learning_window_times, 0);
+    title('Learning window');
+    hold off;
 end
-
-figure;
-learning_window_times = -0.1:(times(2)-times(1)):0.1;
-fit_exp_window = learning_rule_parameters.non_associative_weight + ...
-    learning_rule_parameters.pre_amp * (learning_window_times < 0) .* exp(learning_window_times / learning_rule_parameters.tau_pre) + ...
-    learning_rule_parameters.post_amp * (learning_window_times > 0) .* exp(-learning_window_times / learning_rule_parameters.tau_post);
-plot(learning_window_times, fit_exp_window);
-
-
-%stdp_voltage_changes = zeros(size(voltage_changes));
-%weight_changes = zeros(size(gc_rates, 2), size(voltage_changes,2));
-%learning_rule_parameters = struct('potentiation_per_spike', 1e-1, 'amplitude', -2.0, 'tau', 0.01)
-%figure;
-%title('Application of anti STDP rule')
-%for i=1:length(delays)
-%    weight_changes(:,i) = apply_plasticity_rule(times, gc_rates, delays(i), 'EXP_WINDOW', learning_rule_parameters);
-%    stdp_voltage_changes(:,i) = convolve_with_synaptic_kernel(gc_rates, times(2) - times(1), 0.003, 0.02) ...
-%        * weight_changes(:,i);
-%    subplot(ceil(length(plasticity_files)/3), 3, i);
-%    plot(times, voltage_changes(:,i), times, stdp_voltage_changes(:,i));
-%end
