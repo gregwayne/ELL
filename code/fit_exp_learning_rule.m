@@ -47,8 +47,10 @@ tau_post = tau(2);
 X = [];
 for i=1:num_plasticity_results
 
-    pre_kernel = (gc_times - delays(i) < 0) .* exp((gc_times - delays(i)) / tau_pre)  * dt;
-    post_kernel= (gc_times - delays(i) > 0) .* exp((delays(i) - gc_times) / tau_post) * dt;
+    post_minus_pre_delay = delays(i) - gc_times;
+
+    pre_kernel = (post_minus_pre_delay < 0) .* exp((post_minus_pre_delay) / tau_pre)  * dt;
+    post_kernel= (post_minus_pre_delay > 0) .* exp((-post_minus_pre_delay) / tau_post) * dt;
 
     if whether_nonassociative_plasticity
         non_associative_kernel = ones(size(gc_times)) * dt;
@@ -69,12 +71,12 @@ predicted_voltage_changes = ...
     
 
 if whether_nonassociative_plasticity
-    learning_rule_parameters = struct('tau_pre', tau_pre, 'tau_post', tau_post, ...
-        'pre_amp', learning_rule(1), 'post_amp', learning_rule(2), ...
+    learning_rule_parameters = struct('tau_post_before_pre', tau_pre, 'tau_pre_before_post', tau_post, ...
+        'post_before_pre_amp', learning_rule(1), 'pre_before_post_amp', learning_rule(2), ...
         'non_associative_weight', learning_rule(3));
 else 
-    learning_rule_parameters = struct('tau_pre', tau_pre, 'tau_post', tau_post, ...
-        'pre_amp', learning_rule(1), 'post_amp', learning_rule(2), ...
+    learning_rule_parameters = struct('tau_post_before_pre', tau_pre, 'tau_pre_before_post', tau_post, ...
+        'post_before_pre_amp', learning_rule(1), 'pre_before_post_amp', learning_rule(2), ...
         'non_associative_weight', 0);
 end
 
@@ -96,8 +98,10 @@ dt = gc_times(2) - gc_times(1);
 X = [];
 for i=1:length(delays)
 
-    pre_kernel = (gc_times - delays(i) < 0) .* exp((gc_times - delays(i)) / tau_pre)  * dt;
-    post_kernel= (gc_times - delays(i) > 0) .* exp((delays(i) - gc_times) / tau_post) * dt;
+    post_minus_pre_delay = delays(i) - gc_times;
+
+    pre_kernel = (post_minus_pre_delay < 0) .* exp((post_minus_pre_delay) / tau_pre)  * dt;
+    post_kernel= (post_minus_pre_delay > 0) .* exp((-post_minus_pre_delay) / tau_post) * dt;
 
     if whether_nonassociative_plasticity
         non_associative_kernel = ones(size(gc_times)) * dt;

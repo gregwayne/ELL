@@ -1,5 +1,4 @@
-function stability_analysis(rates_in, times)
-close all;
+function stability_analysis(rates_in, times, learning_rule_parameters)
 
 % discard rates that are always zero
 rates = [];
@@ -12,14 +11,15 @@ end
 num_neurons = size(rates,2);
 dt = times(2) - times(1);
 
-% periodize the rates, epsp functions, and learning window
-zero_idx = find(times == 0);
-rates = rates(zero_idx:size(rates,1), :);
-times = times(zero_idx:length(times));
+%% periodize the rates, epsp functions, and learning window
+%zero_idx = find(times == 0);
+%rates = rates(zero_idx:size(rates,1), :);
+%times = times(zero_idx:length(times));
 
-epsp_shape = exp(-times / 0.02) - exp(-times / 0.002);
+epsp_shape = (times > 0) .* (exp(-times / 0.02) - exp(-times / 0.002));
 epsp_shape = epsp_shape / sum(epsp_shape) / dt;
-plasticity_window = -epsp_shape;
+plasticity_window = (times > 0) .* exp( - times / learning_rule_parameters.tau_pre_before_post) * learning_rule_parameters.pre_before_post_amp ...
+    + (times < 0) .* exp(times / learning_rule_parameters.tau_post_before_pre) * learning_rule_parameters.post_before_pre_amp;
 
 % Fourier transform rates,
 ft_rates = fft(rates);
@@ -41,18 +41,37 @@ freq = linspace(0, 1, ceil(length(ft_epsp/2))) /  dt;
 deriv_matrix = diag(ft_epsp) * ft_rates * ctranspose(diag(ft_plasticity) * ft_rates);
 
 [U,S,V] = svd(diag(ft_epsp) * ft_rates,'econ');
+%[U,S,V] = svd(diag(ft_epsp) * ft_rates);
 Q = ctranspose(U) * deriv_matrix * U;
 
 [eigenvectors, eigenvalues] = eig(Q);
 
-[rd, sort_idx] = sort(real(diag(eigenvalues)), 'descend');
+[rd, sort_idx] = sort(real(diag(eigenvalues)), 'ascend');
 
-sorted_eigenvectors = sortrows(eigenvectors', sort_idx)';
+% sort the eigenvectors
+sorted_eigenvectors = cat(1, eigenvectors, sort_idx');
+sorted_eigenvectors = sortrows(sorted_eigenvectors', size(sorted_eigenvectors,1))';
+sorted_eigenvectors = sorted_eigenvectors(1:(end-1),:);
+
+
 figure; pcolor(abs(sorted_eigenvectors)); colorbar;
 
 figure;
 plot(rd, '.');
 
-figure; plot(log(-real(eigenvalues))/log(10));
-plot(log(-real(rd))/log(10));
+disp(max(rd));
 
+figure;
+plot(log(-real(rd))/log(10));
+title('log_10(-real(eigenvalues))')
+
+max_idx = min(find(freq > 1000));
+
+figure;
+power_spectrum = abs(U*sorted_eigenvectors).^2;
+plot(freq(1:max_idx),log(power_spectrum(1:max_idx,end)),'r');
+hold on;
+plot(freq(1:max_idx),log(power_spectrum(1:max_idx,end-1)),'b');
+plot(freq(1:max_idx),log(power_spectrum(1:max_idx,1)),'g');
+plot(freq(1:max_idx),log(power_spectrum(1:max_idx,2)),'k');
+hold off;

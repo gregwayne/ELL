@@ -123,11 +123,15 @@ for whether_nonassociative_plasticity = 0:1
     subplot(ceil(length(unique_delays)/2), 2, i+1);
     learning_window_times = -0.1:(times(2)-times(1)):0.1;
     fit_exp_window = learning_rule_parameters.non_associative_weight + ...
-        learning_rule_parameters.pre_amp * (learning_window_times < 0) .* exp(learning_window_times / learning_rule_parameters.tau_pre) + ...
-        learning_rule_parameters.post_amp * (learning_window_times > 0) .* exp(-learning_window_times / learning_rule_parameters.tau_post);
+        learning_rule_parameters.post_before_pre_amp * (learning_window_times < 0) .* exp(learning_window_times / learning_rule_parameters.tau_post_before_pre) + ...
+        learning_rule_parameters.pre_before_post_amp * (learning_window_times > 0) .* exp(-learning_window_times / learning_rule_parameters.tau_pre_before_post);
     plot(learning_window_times, fit_exp_window);
     hold on;
     plot(learning_window_times, 0);
     title('Learning window');
+    xlabel('tpost - tpre');
     hold off;
 end
+
+%% analyze stability of the learning rule with the given set of gc inputs
+stability_analysis(gc_rates, times, learning_rule_parameters);
