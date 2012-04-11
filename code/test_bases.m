@@ -1,6 +1,6 @@
 % [celltypes, bfns]=generate_bases('raw');
-[celltypes, bfns]=generate_bases('2thr',.5, .8); %first is PCA, 2nd is others
-% [celltypes, bfns]=generate_bases('thr',.6);
+% [celltypes, bfns]=generate_bases('2thr',.5, .8); %first is PCA, 2nd is others
+[celltypes, bfns]=generate_bases('thr',.8);
 ncells=size(bfns,1);
 
 smk=500;
@@ -10,7 +10,9 @@ indother=cellfun(@isempty,strfind(celltypes,'PCA'));
 indPCA=setdiff(1:ncells,find(indother));
 indPCAstrict=find(strcmp(celltypes,'PCA'));
 % rates(indPCA,400:900)=rates(indPCA,400:900)*5;
-% 
+
+smk=10000;
+smk2=5000;
 rates(indPCA,:)=smoothts(rates(indPCA,:),'g',smk2*5,smk2);
 rates(indother,:)=smoothts(rates(indother,:),'g',smk*5,smk);
 % rates=rates+.05;
@@ -19,20 +21,21 @@ rates(indother,:)=smoothts(rates(indother,:),'g',smk*5,smk);
 % rates(indPCA,:)=[];ncells=size(rates,1);
 
 vars=zeros(ncells,1);
-% vars=mean(rates,2);
+vars=mean(rates,2);
 % vars(strcmp(celltypes,'PCA'))=2;
 % vars(~strcmp(celltypes,'PCA'))=50;
 
 NCs=zeros(ncells);
-pCI=.5; %pretend some cells have strong common input!
-indCI=indPCA(randperm(length(indPCA)));
+
+pCI=.1; %pretend some cells have strong common input!
+indCI=randperm(ncells);%indPCA(randperm(length(indPCA)));
 indCI=indCI(1:length(indCI)*pCI);
 NCs(indCI,:)=1;
 NCs=NCs.*NCs';
 
 
 C=zeros(ncells);
-C=C+NCs;
+% C=C+NCs;
 % C=C+diag(vars);
 
 % rtemp=rates;

@@ -8,7 +8,7 @@ function [celltypes,bfns] = generate_bases(type,varargin)
 
 % I am bad at parameter-fitting, so as a first go let's just make everyone
 % binary. Next I'll try accounting for cell response variability (still
-% assume NC's are zero, because they probably are.)
+% assume NC's are zero, because they probably are!)
 
 rcell=loader_means('../DATA2');
 ncells=length(rcell);
