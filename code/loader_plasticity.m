@@ -18,7 +18,7 @@ for i=1:nfiles
     temp=temp{1};
     stim(i,:)=0;
     stimtime=round(max((temp.delay-temp.start)/temp.interval,1));
-    stim(i,stimtime)=100; %should it be temp.delay-temp.start or temp.delay?
+    stim(i,stimtime)=1;
     stimtimes(i)=temp.delay-temp.start;
     resp(i,:)=temp.values;
 end
@@ -28,4 +28,4 @@ ind=[stimtimes (1:nfiles)'];
 ind=sortrows(ind,1);ind=ind(:,2);
 stim=stim(ind,:);
 resp=resp(ind,:);
-tran=(1:tmax)*tstep;
+tran=(1:tmax)*tstep+temp.start;
