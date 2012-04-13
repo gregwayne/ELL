@@ -8,6 +8,13 @@ synaptic_kernel = synaptic_kernel / sum(synaptic_kernel);
 % convolve firing rates with synaptic kernel
 convolved_rates = zeros(size(input_activity));
 for i=1:size(input_activity,2)
+    
+% suggestion: pad with edge values to keep from adding artifacts to the
+% pause neurons?
+%     temp=[ones(4000,1)*input_activity(1,i); input_activity(:,i)];
+%     temp=conv(temp,synaptic_kernel,'same');
+%     convolved_rates(:,i)=temp(4001:end);
+
     convolved_rates(:,i) = conv(input_activity(:,i), synaptic_kernel, 'same');
 end
 
