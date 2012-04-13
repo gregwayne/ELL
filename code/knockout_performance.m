@@ -2,7 +2,9 @@
 [stim2 resp2 tran2]=loader_plasticity(1);
 [celltypes, bfns]=generate_bases('thr',.8);
 rates=convolve_with_synaptic_kernel(bfns',5e-5,0.003,0.02)';
+ncells=size(rates,1);
 figure(12);clf;hold on;
+
 
 %CELLTYPES CELLTYPES YES
 % 1 = CD_ipsp
@@ -13,6 +15,11 @@ figure(12);clf;hold on;
 % 6 = PCA_med
 % 7 = PCA_med_late
 
+grps=unique(celltypes);
+subpops=cell(length(grps),1);
+for i=1:length(grps)
+	subpops{i}=find(strcmp(celltypes,grps(i)));
+end
 allgrps=1:7;
 mixgrp=4:7;
 puregrp=1:3;
@@ -29,7 +36,7 @@ C=C*(4500*mean(mean(rates)))^2;
 
 w=(C^-1*rates*stim')';
 
-% usegrp=cell2mat(cellfun(@(x) x,subpops([2]),'uniformoutput',false));
+usegrp=cell2mat(cellfun(@(x) x,subpops([noPCA]),'uniformoutput',false));
 % usefr=.5;
 % usegrp=randperm(ncells);
 % usegrp=usegrp(1:round(usefr*ncells));
@@ -42,7 +49,7 @@ C=rmeans*rmeans';
 C=C+1e-5*eye(length(rmeans));
 C=C*(4500*mean(mean(ratesko)))^2;
 
-wko=(C^-1*ratesko*stim')';
+wko=(C^-1*ratesko*stim')'/4;
 
 
 for i=1:6
@@ -57,7 +64,7 @@ for i=1:6
     plot(tran,resp(i,:),'g');
     plot(tran,resp2(i,:),'g')
     plot(tran,w(i,:)*-rates,'r');
-%     plot(tran,wko(i,:)*-ratesko,'b');
+    plot(tran,wko(i,:)*-ratesko,'b');
 %     plot(tran,w(i,:)*-ratesko,'c--');
 %     plot(tran,wko(i,:)*-rates,'m--');
     xlim([min(tran) max(tran)])
@@ -89,7 +96,7 @@ end
 figure(13);clf;hold on;
 for i=1:6
     subplot(6,2,i*2-1);
-    wsp(i,:)=w(i,:).*(abs(w(i,:))>.2);
+    wsp(i,:)=w(i,:).*(abs(w(i,:))>.3);
     plot(wsp(i,:),'k.-')
     hold on;
     plot(find(wsp(i,:)>0),wsp(i,wsp(i,:)>0),'b.')
