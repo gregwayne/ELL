@@ -34,7 +34,7 @@ C=rmeans*rmeans';
 C=C+1e-5*eye(length(rmeans));
 C=C*(4500*mean(mean(rates)))^2;
 
-w=(C^-1*rates*stim')';
+w=(C^-1*rates*-stim')';
 
 usegrp=cell2mat(cellfun(@(x) x,subpops([noPCA]),'uniformoutput',false));
 % usefr=.5;
@@ -44,34 +44,65 @@ ratesko=rates;
 ratesko(setdiff(1:ncells,usegrp),:)=0;
 
 rmeans=mean(ratesko,2);
-C=zeros(length(rmeans));
-C=rmeans*rmeans';
-C=C+1e-5*eye(length(rmeans));
-C=C*(4500*mean(mean(ratesko)))^2;
+C2=zeros(length(rmeans));
+C2=rmeans*rmeans';
+C2=C2+1e-5*eye(length(rmeans));
+C2=C2*(4500*mean(mean(ratesko)))^2;
 
-wko=(C^-1*ratesko*stim')'/4;
+wko=(C2^-1*ratesko*-stim')'/4;
 
 
 for i=1:6
     subplot(6,2,i*2-1);
     plot(w(i,:),'k.-');
     hold on;
-    plot(find(w(i,:)<0),w(i,w(i,:)<0),'r.');
     plot(find(w(i,:)>0),w(i,w(i,:)>0),'b.');
+    plot(find(w(i,:)<0),w(i,w(i,:)<0),'r.');
     xlim([1 124]);
     subplot(6,2,i*2);
     hold on;
     plot(tran,resp(i,:),'g');
     plot(tran,resp2(i,:),'g')
-    plot(tran,w(i,:)*-rates,'r');
-    plot(tran,wko(i,:)*-ratesko,'b');
+    
+    spt=find(stim(i,:));
+    plot(tran,w(i,:)*rates,'r');
+    plot(tran,wko(i,:)*ratesko,'b');
+    plot(tran(find(stim(i,:))),0,'r.')
 %     plot(tran,w(i,:)*-ratesko,'c--');
 %     plot(tran,wko(i,:)*-rates,'m--');
     xlim([min(tran) max(tran)])
 %     ylim([-4 3])
 
 end
+%%
+figure(15);clf;
+colors='rgbcmkrgbcmkrgbcmkrgbcmk';
+count=1;
+fmax=30;
+nf=300;
+nph=200;
+frange=linspace(1,fmax,nf);
+phrange=linspace(0,2*pi,nph);
+sig=zeros(nf,nph);
+sig2=zeros(nf,nph);
+K=C^-1*rates;
+for ph=phrange
+    count2=1;
+    for freq=frange
+        stim=cos(2*pi*freq*(1:4500)/4500+ph);
+        resp=rates'*(K*stim');
+        
+%         fresp=abs(fft(resp/sqrt(var(resp))));
+%         sig(count2,count)=fresp(round(freq));
+        sig2(count2,count)=abs(exp(1i*freq*(1:4500)/4500)*resp(1:end));
+        count2=count2+1;
+    end
+    count=count+1;
+end
 
+imagesc(frange,phrange,sig2')
+
+%% compare weights of knockout to original
 figure(14);clf;hold on
 for i=1:6
     subplot(3,2,i);
@@ -96,7 +127,7 @@ end
 figure(13);clf;hold on;
 for i=1:6
     subplot(6,2,i*2-1);
-    wsp(i,:)=w(i,:).*(abs(w(i,:))>.3);
+    wsp(i,:)=w(i,:).*(abs(w(i,:))>.2);
     plot(wsp(i,:),'k.-')
     hold on;
     plot(find(wsp(i,:)>0),wsp(i,wsp(i,:)>0),'b.')
@@ -105,7 +136,8 @@ for i=1:6
     hold on;
     plot(tran,resp(i,:),'g');
     plot(tran,resp2(i,:),'g')
-    plot(tran,wsp(i,:)*-rates);
-    plot(tran,w(i,:)*-rates,'--');
+    plot(tran,wsp(i,:)*rates);
+    plot(tran,w(i,:)*rates,'--');
+    plot(tran(find(stim(i,:))),0,'r.')
     xlim([min(tran) max(tran)])
 end
