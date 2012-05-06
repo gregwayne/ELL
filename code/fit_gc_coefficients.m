@@ -13,13 +13,13 @@ nN      = 14;
 
 all_terms_meas      = [nE,nM,nP,nEM,nEP,nPM,nEMP,nN];
 %    s = sum(all_terms_meas);
-%
+% 
 %    all_terms_meas = zeros(1, 8);
 %    for i = 1:s
 %        idx = randi(8);
 %        all_terms_meas(idx) = all_terms_meas(idx) + 1;
 %    end
-%
+% 
 %    disp(all_terms_meas);
 
 
@@ -56,12 +56,12 @@ prob_less   = chi2cdf(chi_squared,dof);
 % Probability that the null hypothesis would generate a more extreme value
 p_value     = 1-prob_less;
 
-disp(sprintf(strcat('Observation of bins: \n',num2str(all_terms_meas),'\n')));
-disp(sprintf(strcat('Estimation of bins: \n',num2str(nT*calc),'\n')));
-disp(sprintf(strcat('Theta vector (e,m,p): \n',num2str(theta'),'\n')));
-disp(sprintf('Degrees of Freedom: %d \n',dof));
-disp(sprintf('Chi-Squared Statistic: %f \n',chi_squared));
-disp(sprintf('p-value: %f \n',p_value));
+disp(sprintf(strcat('Observation of bins: \n',num2str(all_terms_meas))));
+disp(sprintf(strcat('Estimation of bins: \n',num2str(nT*calc))));
+disp(sprintf(strcat('Theta vector (e,m,p): \n',num2str(theta'))));
+disp(sprintf('Degrees of Freedom: %d',dof));
+disp(sprintf('Chi-Squared Statistic: %f',chi_squared));
+disp(sprintf('p-value: %f',p_value));
 
 if p_value < 0.05
     disp(sprintf('Reject Null Hypothesis: Random Mixing Model Matches Poorly'));
