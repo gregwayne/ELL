@@ -7,7 +7,7 @@ for i=1:ncells %loop over cells
     sptimes{i}=zeros(length(events{i}),20); %store spiketimes (slow)
     win=floor(min(20000,min(events{i}(2:end)-events{i}(1:end-1))-10));
     
-    if(i==1||i==8) %god dammit nate
+    if(i==1||i==8) %events are too close together!
         win=2000;
     end
     dat{i}=nan(length(events{i})-1,win);
