@@ -4,8 +4,8 @@ folders = folders(find(cellfun(@isempty,strfind({folders.name},'.'))));
 
 %%
 %change these parameters to look at different cells/celltypes.
-celltype=3;
-cellnum=5;
+celltype=2;
+cellnum=1;
 
 files=dir([pth folders(celltype).name]);
 files(1:2)=[];
