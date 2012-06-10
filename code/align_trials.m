@@ -26,12 +26,12 @@ for i=1:ncells %loop over cells
 end
 
 %% look to see if it worked
-% figure(66);clf;
-% ind=5;
-% hold on;
-% plot(dat{ind}');
-% plot(mean(dat{ind}),'k','linewidth',2)
-% hold on;
-% if(~isempty(nonzeros(sptimes{ind}(:))));
-%     plot(nonzeros(sptimes{ind}(:)),0,'g.')
-% end
+figure(66);clf;
+ind=6;
+hold on;
+plot(dat{ind}');
+plot(mean(dat{ind}),'k','linewidth',2)
+hold on;
+if(~isempty(nonzeros(sptimes{ind}(:))));
+    plot(nonzeros(sptimes{ind}(:)),0,'g.')
+end

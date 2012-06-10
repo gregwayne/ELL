@@ -1,17 +1,22 @@
 clear all;
 close all;
-mossy_fiber_filenames = {   '../mossyfibers/UBC_type1/*.mat'  ,
+mossy_fiber_filenames = {   '../mossyfibers/UBC_type1/*.mat'  , 
                             '../mossyfibers/pause/*.mat'      ,
                             '../mossyfibers/pca_early/*.mat'  ,
                             '../mossyfibers/pe_med/*.mat'     };
-%% WHY DO SOME OF THE PCAs HAVE SO MANY EVENTS?
-%% You need to draw in a way that matches the granule cell pie chart
-                          
-mossy_fibers = get_file_list(mossy_fiber_filenames);
-mossy_names = {};
-mossy_recordings = {};
 
-N_cells = length(mossy_fibers);
+N_cells = 0;                        
+mossy_fibers    = {};
+lrange          = 1;  
+for i=1:length(mossy_fiber_filenames) 
+    new_mossies         = get_file_list(get_file_list({mossy_fiber_filenames{i}}));
+    mossy_fibers        = {mossy_fibers{:},new_mossies{:}};
+    N_cells             = N_cells + length(new_mossies);
+    mossy_types{i}      = [lrange (lrange + length(new_mossies))];
+    lrange              = lrange + 1 + length(new_mossies);
+end
+
+mossy_recordings        = {};
 
 for i=1:N_cells
    
@@ -49,34 +54,60 @@ for i=1:N_cells
 
 end
 
+% Theta vector (e,m,p): 
+% (0.45,0.06,0.05)
+
 N_gr        = 1e2;
 N_m         = 3;
 c_table     = zeros(N_gr,N_m);
 for i=1:N_gr
     for j=1:N_m
-        c_table(i,j) = 1+floor(rand*N_cells);
+        
+        mossy_kind = rand;
+        if mossy_kind <= 0.45 % early
+           
+            crange      = [min(mossy_types{3},mossy_types{4}),...
+                            max(mossy_types{3},mossy_types{4})];            
+        elseif mossy_kind <= 0.51 % medium
+            crange      = mossy_types{1}; 
+        elseif mossy_kind <= 0.56 % pause
+            crange      = mossy_types{2};
+        else % no input
+            crange      = [NaN NaN];
+        end
+                
+        %c_table(i,j) = 1+floor(rand*N_cells);
+        if isnan(crange(1))
+            c_table(i,j)    = NaN;
+        else
+            c_table(i,j)    = crange(1) + floor(rand*(crange(2)-crange(1)));
+        end
     end
 end
         
 % Granule Parameters
 % deterministic for now
-tau_m       = 8.7; % (ms)
+tau_m       = 20; % 8.7 (ms)
 V_thresh    = -43; % (mV);
-rmgs        = 2; % unitless
+rmgs        = 1; % unitless
 E_L         = -63; % (mV)
 V_reset     = E_L; % (mV);
 tau_s       = 1; % (ms) -- look up
-Ws          = rmgs*(0.5+0.5*rand(N_gr,N_m));
+Ws          = rmgs*(rand(N_gr,N_m));
 
-N_cycles    = 1;
+N_cycles    = 10;
 dt          = 1e-2; % (ms)
-max_t       = 200; % (ms)
+max_t       = 200;  % (ms)
 times       = 0:dt:max_t;
 V_gr        = E_L*ones(N_gr,length(times));
-spiking_on  = 1;
+spiking_on  = 0;
 
-% cycles are not currently in use
+% Storage
+granule_traces = {};
+
 for cycle=1:N_cycles
+    
+    disp(sprintf('Cycle # %d', cycle));
     
     % The presynaptic partner for a granule cell
     % is always the same mossy fiber, but the 
@@ -88,7 +119,11 @@ for cycle=1:N_cycles
         for j=1:N_m
            
             idx     = c_table(i,j);
-            partner = 1+floor(rand*length(mossy_trials{idx}));
+            if isnan(idx)
+                partner = NaN;
+            else                
+                partner = 1+floor(rand*length(mossy_trials{idx}));
+            end
             P(i,j)  = partner;
             
         end
@@ -103,12 +138,16 @@ for cycle=1:N_cycles
 
         for j=1:N_m
 
-            inputs(i,j,:) = 0;
-            channel     = mossy_trials{c_table(i,j)}{P(i,j)};
-            channel     = channel*(1000); % convert to (ms) from s
+            inputs(i,j,:)   = 0;
+            if isnan(P(i,j))
+                channel         = [];
+            else
+                channel         = mossy_trials{c_table(i,j)}{P(i,j)};
+            end
+            channel             = channel*(1000); % convert to (ms) from s
             for event=1:length(channel)
                
-                idx     = 1+floor(channel(event)/dt);
+                idx             = 1+floor(channel(event)/dt);
                 if channel(event) <= 200 % cut off late events
                     inputs(i,j,idx) = 1;
                 end
@@ -122,9 +161,8 @@ for cycle=1:N_cycles
     % compute granule cell activity       
     for i=1:N_gr
         
-        Ps  = zeros(N_m,1);
-                        
-        input_in_steps = zeros(N_m,length(times));
+        Ps              = zeros(N_m,1);                        
+        input_in_steps  = zeros(N_m,length(times));
         for step=1:(length(times)-1)
             
             if spiking_on
@@ -135,10 +173,6 @@ for cycle=1:N_cycles
             
             % increment presynaptic conductance when there's a spike
             Ps              = Ps + inputs(i,:,step)'; 
-            % DEBUG
-            %if mod(step,200)==0 && step > 200
-            %    Ps = Ps + 1;
-            %end
             Ps              = Ps - (dt/tau_s)*Ps;
             
             V_gr(i,step+1)  = V_gr(i,step) ...
@@ -153,17 +187,24 @@ for cycle=1:N_cycles
         
         end
         
-        figure(1);
-        plot(times,V_gr(i,:),'g');
-        xlim([0 max_t]);
-        ylim([E_L -30]);
-        hold on;
-        for j=1:N_m
-            scatter(times,V_gr(i,:).*squeeze(inputs(i,j,:))','r','Marker','*');
+        granule_traces{i,cycle} = V_gr(i,:); 
+        
+        if 0
+            figure(1);
+            plot(times,V_gr(i,:),'g');
+            xlim([0 max_t]);
+            ylim([-70 -30]);
+            hold on;
+            for j=1:N_m
+                scatter(times,V_gr(i,:).*squeeze(inputs(i,j,:))','r','Marker','*');
+            end
+            hold off;
+            pause(1);
         end
-        hold off;
-        pause(2);
         
     end
             
 end
+
+sf = '../granule_traces.mat';
+save(sf,'granule_traces');
