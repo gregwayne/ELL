@@ -1,15 +1,45 @@
 close all;
 
 %%
+%old pie chart
+% nE      = 101;
+% nM      = 4;
+% nP      = 7;
+% nEM     = 20;
+% nEP     = 12;
+% nPM     = 0;
+% nEMP    = 0;
+% nN      = 14;
 
-nE      = 101;
-nM      = 4;
-nP      = 7;
-nEM     = 20;
-nEP     = 12;
+%new pie chart (6/18)
+nE      = 110;
+nM      = 8;
+nP      = 9;
+nEM     = 16;
+nEP     = 15;
 nPM     = 0;
-nEMP    = 0;
-nN      = 14;
+nEMP    = 3;
+nN      = 14; %12 from nate's email + two late/UBC alone cells
+
+%if we were to make late/UBC a new category:
+% nE      = 99;
+% nM      = 8;
+% nL      = 2;
+% nP      = 9;
+% nEM     = 16;
+% nEL     = 11; %seems high given the number of late-only cells
+% nEP     = 15;
+% nML     = 0;
+% nLP     = 0;
+% nPM     = 0;
+% nEMP    = 3;
+% nELM    = 0;
+% nELP    = 0;
+% nLMP    = 0;
+% nELMP   = 0;
+% nN      = 12;
+
+
 
 all_terms_meas      = [nE,nM,nP,nEM,nEP,nPM,nEMP,nN];
 %    s = sum(all_terms_meas);
