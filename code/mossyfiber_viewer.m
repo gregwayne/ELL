@@ -13,7 +13,7 @@ files(1:2)=[];
 files = files(find(cellfun(@isempty,strfind({files.name},'.DS_Store')))); %what why agh
 
 % for cellnum=1:length(files)
-data=struct2cell(load(files(cellnum).name));
+data=struct2cell(load([pth folders(celltype).name '/' files(cellnum).name]));
 if(strcmp(data{1}.title,'cmdfilt')||strcmp(data{1}.title,'trigevt')||strcmp(data{1}.title,'cd')) %figure out which channel is which
     eventind=1; spind=2;
 elseif(data{1}.length<data{2}.length)
@@ -29,23 +29,24 @@ eventtimes=data{eventind}.times;
 spiketimes=data{spind}.times;
 tmax=max(eventtimes(2:end)-eventtimes(1:end-1));
 tmin=min(eventtimes(2:end)-eventtimes(1:end-1));
-meanrsp=zeros(ceil((tmax+.1)/data{eventind}.resolution/100),1);
-
+meanrsp=zeros(ceil((tmax+.1)/5e-5),1);
+rspstore=zeros(length(eventtimes),ceil((tmax+.1)/5e-5));
 for i=2:length(eventtimes)-1
-    if((eventtimes(i)-eventtimes(i-1)<.2)&&(eventtimes(i+1)-eventtimes(i)>.2)) %only use well-isolated events
+    if((eventtimes(i)-eventtimes(i-1)>.2)&&(eventtimes(i+1)-eventtimes(i)>.2)) %only use well-isolated events
         mrkstart=find(spiketimes>eventtimes(i)-.1,1);
         mrkend=find(spiketimes>eventtimes(i)+.3,1); %find the first spike past the end of the interval
         if(mrkstart<mrkend)
             plot((spiketimes(mrkstart:mrkend-1)-eventtimes(i)),i,'b.');
         end
         plot(eventtimes(i+1)-eventtimes(i),i,'g.'); %marks the end of the trial
-        spind=ceil((spiketimes(mrkstart:mrkend-1)-eventtimes(i)+.1)/data{eventind}.resolution/100);
+        spind=ceil((spiketimes(mrkstart:mrkend-1)-eventtimes(i)+.1)/5e-5);
         meanrsp(spind)=meanrsp(spind)+1;
+        rspstore(i,spind)=1;
     end
 end
 plot([0 0],[1 length(eventtimes)],'k--')
 
-meanrsp=meanrsp/length(eventtimes)/data{eventind}.resolution/100;
+meanrsp=meanrsp/length(eventtimes)/5e-5;
 xlim([-.1 .3])
 ylim([1 length(eventtimes)-1])
 cellname=folders(celltype).name;

@@ -1,4 +1,4 @@
-% load('../granule_traces.mat');
+load('../granule_traces.mat');
 cellnum=14;
 ntrials=size(granule_traces,2);
 nfake=size(granule_traces,1);
@@ -16,6 +16,10 @@ end
 deadcells=find(max(mean_fake')-min(mean_fake')==0);
 mean_fake(deadcells,:)=[];
 nfake=size(mean_fake,1);
+
+mean_fake=downsample(mean_fake',10)';
+time=floor(time/10)+1;
+
 %% compare dimensionality to real GCs
 mean_fake=mean_fake-mean(mean_fake,2)*ones(1,time);
 [ef,vf]=eig(mean_fake*mean_fake');
@@ -29,7 +33,7 @@ mean_real=mean_real-mean(mean_real,2)*ones(1,time);
 [er,vr]=eig(mean_real*mean_real');
 vr=diag(vr);
 
-
+%%
 h=figure(1);clf;
 ndim=8;
 subplot(2,1,1);hold on
