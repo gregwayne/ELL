@@ -6,18 +6,11 @@ uictrls.fig     = figure('Position',[10,400,450,250],...
     
 clf(uictrls.fig);    
 
-% resample        = uicontrol(uictrls.fig,'Style','pushbutton','Position',[220 120 150 20],...
-%             'String','Resample from this synapse','Value',0,'Callback',{'resample_synapses'});
-% compute         = uicontrol(uictrls.fig,'Style','pushbutton','Position',[220 40 150 20],...
-%             'String','Compute','Value',0,'Callback',{'compute_voltage'});
-%         
-% uictrls.resample        = resample;
-% uictrls.compute         = compute;
 
-% granule         = uicontrol(uictrls.fig,'Style','pushbutton','Position',[220 80 150 20],...
-%             'String','Get Granule','Value',0,'Callback',{'choose_granule'});
-%         
-% uictrls.granule         = granule;
+uictrls.quitbutton         = uicontrol(uictrls.fig,'Style','pushbutton','Position',[280 10 150 20],...
+            'String','Quit','Value',0,'Callback',{'quitbutton'});
+global quitsim;
+quitsim=0;
 
 
 uictrls.GC_to_use_label = uicontrol('style','text',...
