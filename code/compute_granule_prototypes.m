@@ -1,4 +1,4 @@
-function prototypes = compute_granule_prototypes(K,N)
+function [prototypes,bfns] = compute_granule_prototypes(K,N)
 
     % K number of prototypes
     % N number of principal components to use
@@ -8,8 +8,6 @@ function prototypes = compute_granule_prototypes(K,N)
     % compute principal components
     [signals,PC,V]      = shlens_pca(bfns');
     wh_proj_sigs        = signals(1:N,:)./repmat(sqrt(V(1:N)),1,size(signals,2));
-
-    scatter3(wh_proj_sigs(:,1),wh_proj_sigs(:,2),wh_proj_sigs(:,3));
 
     % compute k-medoids
     cl_assns    = zeros(size(bfns,1),1);

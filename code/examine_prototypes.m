@@ -1,7 +1,7 @@
 n_proto = 5;
-n_pca   = 5;
+n_pca   = 10;
 
-prototypes=compute_granule_prototypes(n_proto,n_pca);
+[prototypes,bfns] =compute_granule_prototypes(n_proto,n_pca);
 figure(2);
 
 % ann says that the units start at -0.025 seconds before EOCD and
