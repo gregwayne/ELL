@@ -64,17 +64,19 @@ figure(2);imagesc(smoothts(spikestore,'e',50));colormap gray
 %%
 tran=linspace(-.025,.1,2500);
 [~,ind]=max(mossies*smoothts(spikestore,'e',50)');
-cellnum=110;
+cellnum=90;
 
 figure(1);clf;hold on;
 plot(tran,mean_real(cellnum,:)/sqrt(var(mean_real(cellnum,:))));
-plot(tran,spikestore(cellnum,:)/sqrt(var(spikestore(cellnum,:)))/3+2,'r');
+plot(tran,(spikestore(cellnum,:)/sqrt(var(spikestore(cellnum,:)))/3)+2,'r');
 
 ind=find(strcmp(mossycelltypes,'early_mat'));
-mnum=ind(37);
+mnum=ind(17);
 plot(tran,smoothts(mossies(mnum,:)/sqrt(var(mossies(mnum,:))),'e',50)+2,'g');
-title(num2str(mnum));
-xlim([-.005 .021])
+name=celltypes{cellnum};
+name(name=='_')=' ';
+title([name ' fit with mossy fiber #' num2str(mnum)]);
+xlim([-.005 .051])
 
 
 %good matches, [GC MF]
