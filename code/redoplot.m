@@ -1,4 +1,4 @@
-function redoplot(GC_model,rspstore,real_cells)
+function [realtrace,modeltrace,tran] = redoplot(GC_model,rspstore,real_cells)
 
 dt          = 5e-2; % (ms)
 min_t       = -0.025e3;
@@ -12,17 +12,16 @@ trialnum=zeros(3,1);
                   
 
 vmean=zeros(size(V_gr));
-nreps=10;
-for rep=1:nreps
+for rep=1:GC_model.nreps
     for i=1:3 %pick another set of trials
-        if(incells(i)>0)
-            trialnum(i)=ceil(rand*size(rspstore{incells(i)},1));
-            inputs(i,:)=rspstore{incells(i)}(trialnum(i),1:nsteps);
+        if(GC_model.MF_input(i)>0)
+            trialnum(i)=ceil(rand*size(rspstore{GC_model.MF_input(i)},1));
+            inputs(i,:)=rspstore{GC_model.MF_input(i)}(trialnum(i),1:nsteps);
         end
     end
     for step=1:nsteps-1
 
-        if spiking_on
+        if GC_model.spiking_on
             if V_gr(step) > GC_model.V_thresh
                 V_gr(step) = GC_model.V_reset; 
             end
@@ -34,19 +33,16 @@ for rep=1:nreps
 
         V_gr(step+1)  = V_gr(step) + (dt/GC_model.tau_m)*(GC_model.E_L - V_gr(step) - GC_model.Ws*Ps*V_gr(step));
 
-        if spiking_on
+        if GC_model.spiking_on
             if V_gr(step+1) > GC_model.V_thresh
                 V_gr(step) = 0;
             end
         end
 
     end
-    vmean=vmean+V_gr/nreps;
+    vmean=vmean+V_gr/GC_model.nreps;
 end
 
-cla;hold on;
-plot((min_t+dt:dt:max_t)*10^-3,real_cells(GC_model.GC_to_model,1:nsteps)-mean(real_cells(GC_model.GC_to_model,1:200)))
-plot(.5e-3+(min_t+dt:dt:max_t)*10^-3,vmean-mean(vmean(1:200)),'g');
-legend('real cell','fake cell','location','northeast')
-xlim([-.025 .15])
-fixfig
+realtrace=real_cells(GC_model.GC_to_model,1:nsteps);
+modeltrace=vmean(1:nsteps);
+tran=(min_t+dt:dt:max_t)*10^-3;
