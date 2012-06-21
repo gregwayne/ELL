@@ -1,4 +1,4 @@
-n_proto = 10;
+n_proto = 5;
 n_pca   = 5;
 
 prototypes=compute_granule_prototypes(n_proto,n_pca);
