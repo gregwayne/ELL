@@ -12,17 +12,19 @@ GC_model.nreps       = 10;
 GC_model.MF_input    = [0 0 0]; %0 for no input
 GC_model.GC_to_model = 54;
 
-make_gui;
+if(~exist('rspstore'))
+    gui_initialize();
+end
 
-v_fig = figure();
+plotwin={};
+plotwin.v_fig = figure();
 [realtrace,modeltrace,tran]=redoplot(GC_model,rspstore,real_cells);
-set(0,'CurrentFigure',v_fig);
+set(0,'CurrentFigure',plotwin.v_fig);
 clf;
 hold on;
 
-h1=plot(tran,realtrace-mean(realtrace(1:200)));
-h2=plot(tran,modeltrace-mean(modeltrace(1:200)),'g');
-
+plotwin.h1=plot(tran,realtrace-mean(realtrace(1:200)));
+plotwin.h2=plot(tran,modeltrace-mean(modeltrace(1:200)),'g');
 legend('real cell','fake cell','location','northeast');
 xlabel('Time (s)');
 ylabel('Vm (mV relative to resting)');
@@ -30,9 +32,14 @@ xlim([-.025 .15]);
 fixfig;
 drawnow;
 
+make_gui;
+
+
+
+
 while 1
     if(quitsim)
-       clear all;
+%        clear all;
        close all;
        break; 
     end
@@ -47,13 +54,13 @@ while 1
     set(uictrls.tau_mem_label,'String',num2str(GC_model.tau_m));
     GC_model.spiking_on = get(uictrls.spikes,'Value');
     
-    GC_model.GC_to_model=str2num(get(uictrls.GC_to_use,'String'));
+    GC_model.GC_to_model=get(uictrls.GC_to_use,'Value');
     GC_model.nreps=str2num(get(uictrls.runs_to_avg,'String'));
     
     [realtrace,modeltrace,tran]=redoplot(GC_model,rspstore,real_cells);
 
-    set(0,'CurrentFigure',v_fig);
-    set(h1,'YData',realtrace-mean(realtrace(1:200)));
-    set(h2,'YData',modeltrace-mean(modeltrace(1:200)));
+    set(0,'CurrentFigure',plotwin.v_fig);
+    set(plotwin.h1,'YData',realtrace-mean(realtrace(1:200)));
+    set(plotwin.h2,'YData',modeltrace-mean(modeltrace(1:200)));
     drawnow;
 end

@@ -1,4 +1,4 @@
-function [meanV] = loader_means(pth)
+function meanV = loader_means(pth)
 %% find all the files
 folders=dir(pth);
 folders = folders(find(cellfun(@isempty,strfind({folders.name},'.'))));
@@ -17,7 +17,16 @@ for i=1:length(files)
     for j=1:length(files(i).data)
         temp=struct2cell(load([pth '/' folders(i).name '/' files(i).data(j).name]));
         temp=temp{1};
-        meanV{count,1}=files(i).celltype;
+        name=files(i).celltype;
+        name(name=='_')=' ';
+        if(strfind(name,'GCs'))
+            name(strfind(name,'GCs'):strfind(name,'GCs')+2)=[];
+        end
+        if(strfind(name,'CD'))
+            name(strfind(name,'CD'):strfind(name,'CD')+1)=[];
+        end
+        name=[name ' ' num2str(j)];
+        meanV{count,1}=name;        
         meanV{count,2}=temp.values;
         count=count+1;
     end

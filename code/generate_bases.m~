@@ -58,5 +58,10 @@ for i=1:ncells
         otherwise
             disp 'error: define your basis type!';
     end
+    
+    celltypes{i}(strfind(celltypes{i},'GCs'):strfind(celltypes{i},'GCs')+2)=[];
+    celltypes{i}(celltypes{i}=='_')=' ';
 end
+
+uniquetypes=unique(celltypes)
 

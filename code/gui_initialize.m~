@@ -3,7 +3,7 @@
 [mftypes_uns,rspstore_uns]=export_mossy_rasters('../final_mossyfibers/');
 [gctypes,real_cells]=generate_bases('raw');
 
-%% now let's sort our cells a little bit to make matching easier
+%%
 unique_mossies=unique(mftypes_uns);
 
 for i=1:length(unique_mossies)
@@ -19,9 +19,25 @@ for i=1:length(unique_mossies)
         elseif(~strcmp(unique_mossies{i},'pause'))  %sort medium and late by the center of their activity
             thr=(min(meanresponse)+max(meanresponse))/2;
             marker(j)=mean(find(meanresponse>thr));
-        else                                        %and sort pause cells by their post-pause response onset
-            meanresponse=smoothts(meanresponse,'e',500); %smoothing by a bunch (exponential kernel) lets us find end of the longest inactive interval
+        else                                        %and sort pause cells by their frequency, vaguely
+%             spec=abs(fft(meanresponse-mean(meanresponse)));
+%             spec(1:4)=0;
+%             spec(end/2:end)=[];
+%             clf;plot(smoothts(spec(1:200),'g',100,20));pause(.7);
+%             [y,marker(j)]=max(smoothts(spec(1:200),'g',100,20));
+%             if(y<.5) %bump up the scores on cells with less periodicity
+%                 marker(j)=marker(j)+100/y;
+%             end
+%             thr=(min(meanresponse)+max(meanresponse))/2;
+%             offtimes=double(meanresponse<thr/2);
+%             offtimes=double(smoothts(offtimes,'e',50)>.95);
+%             switchup=find(offtimes(2:end)-offtimes(1:end-1)>0);
+%             switchdown=find(offtimes(2:end)-offtimes(1:end-1)<0);
+%             intervals=offtimes(2:end)-offtimes(1:end-1);
+            clf;plot(smoothts(meanresponse,'e',500));pause(.8)
+            meanresponse=smoothts(meanresponse,'e',500);
             [~,marker(j)]=min(meanresponse(1000:end));
+
         end
     end
     
@@ -31,3 +47,9 @@ for i=1:length(unique_mossies)
         mftypes{cellset(j)}=[mftypes_uns{cellset(ind(j))} ' ' num2str(j)];
     end
 end
+
+rmeans=zeros(length(rspstore),4500);
+for i=1:length(rspstore)
+    rmeans(i,:)=mean(rspstore{i});
+end
+clf;imagesc(smoothts(rmeans,'e',50))
