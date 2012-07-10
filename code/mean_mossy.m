@@ -42,5 +42,3 @@ for celltype=1:length(folders)
         count=count+1;
     end    
 end
-
-figure(5);clf;imagesc(smoothts(meanV,'e',50))

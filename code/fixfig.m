@@ -67,7 +67,7 @@ mksizept = mksize * 3; % points ('.') are always smaller
 % Which font do we like in our figures?
 myfont = 'Arial';
 % How big do we like our fonts?
-fontsizefact = 2; % font sizes are scaled by this value. 2-3 is typical.
+fontsizefact = 1.5; % font sizes are scaled by this value. 2-3 is typical.
 
 % Note: set title and axis fonts near end of file
 
@@ -129,7 +129,7 @@ for i=fliplr(a)
     datatext = findobj(i,'Type','text');
     for p = datatext'
         % set the font
-        set(p,'FontSize',fontsizefact*sc,'FontWeight','bold','FontName',myfont);
+        set(p,'FontSize',fontsizefact*sc,'FontWeight','bold');%,'FontName',myfont);
     end
     
     %axes(i); % specify the subplot

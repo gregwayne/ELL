@@ -45,7 +45,7 @@ for celltype=1:4
         rspstore{cellcountnum}=rspstore{cellcountnum}(1:ntrials,:);
         menuname=folders(celltype).name;
         menuname(find(menuname=='_'):find(menuname=='_')+3)=[];
-        celltypes{cellcountnum}=menuname;%[menuname ' ' num2str(cellnum)];
+        celltypes{cellcountnum}=[menuname ' ' num2str(cellnum)];
         cellcountnum=cellcountnum+1;
     end
 end

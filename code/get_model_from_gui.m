@@ -14,3 +14,7 @@ GC_model.tau_m = get(uictrls.tau_mem_slider,'Value');
 GC_model.GC_to_model=get(uictrls.GC_to_use,'Value');
 GC_model.spiking_on = get(uictrls.spikes,'Value');
 GC_model.nreps=str2num(get(uictrls.runs_to_avg,'String'));
+
+GC_model.dt          = 5e-2;
+GC_model.min_t       = -.025e3;
+GC_model.max_t       = .2e3;
