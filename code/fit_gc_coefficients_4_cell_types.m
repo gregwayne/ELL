@@ -31,6 +31,7 @@ nN      = 12;
 
 
 all_terms_meas      = [nE,nM,nL,nP,nEM,nEL,nEP,nML,nPM,nLP,nELM,nEMP,nELP,nLMP,nN];
+all_terms_meas=[all_terms_fit*124 round(nN*124/sum(all_terms_meas))];
 
 %    s = sum(all_terms_meas);
 % 
@@ -45,7 +46,7 @@ all_terms_meas      = [nE,nM,nL,nP,nEM,nEL,nEP,nML,nPM,nLP,nELM,nEMP,nELP,nLMP,n
 
 
 % Grid Search to Optimize Chi-Squared Statistic
-eps     = 0.01;
+eps     = 0.03;
 
 min_cst = inf;
 
@@ -90,11 +91,11 @@ if p_value < 0.05
 else
     disp(sprintf('Retain Null Hypothesis: Random Mixing Model Matches Well Enough'));
 end
-
+%%
 
 bar_matrix = [nT * calc; all_terms_meas];                                                                                                       
 bar(bar_matrix);                                                                                                                      
 bar(bar_matrix');                                                                                                                     
-set(gca,'XTickLabel',{'Early', 'Medium', 'Pause', 'Early + Medium', 'Early + Pause', 'Pause + Medium', 'E + M + P', 'None'})                              
+set(gca,'XTickLabel',{'Early', 'Medium', 'Late', 'Pause', 'E+M', 'E+L', 'E+P', 'M+L', 'P+M', 'L+P', 'E+L+M', 'E+M+P', 'E+L+P', 'L+M+P','None'})
 legend('Fit', 'Measured')
-%%
+

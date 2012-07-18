@@ -28,6 +28,10 @@ for i=1:length(files)
         name=[name ' ' num2str(j)];
         meanV{count,1}=name;        
         meanV{count,2}=temp.values;
+        if(strcmp(temp.units,' volt')) %fix units
+            meanV{count,2}=meanV{count,2}*100;
+        end
+        
         count=count+1;
     end
 end

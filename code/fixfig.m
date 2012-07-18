@@ -132,7 +132,9 @@ for i=fliplr(a)
         set(p,'FontSize',fontsizefact*sc,'FontWeight','bold');%,'FontName',myfont);
     end
     
-    %axes(i); % specify the subplot
+%     axes(i); % specify the subplot
+get(fignum)
+i
     set(fignum,'CurrentAxes',i);
     
     % axis values and legend text

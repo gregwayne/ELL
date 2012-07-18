@@ -11,7 +11,7 @@ function [celltypes,bfns] = generate_bases(type,varargin)
 % binary. Next I'll try accounting for cell response variability (still
 % assume NC's are zero, because they probably are!)
 
-rcell=loader_means('../DATA2');
+rcell=loader_means('../gcs_mat');
 ncells=length(rcell);
 tmax=4500;
 bfns=zeros(ncells,tmax);
