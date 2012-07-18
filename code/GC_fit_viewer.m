@@ -1,14 +1,11 @@
 %%run this once
-load GCfitdata.mat;
+load ../GC_fitting_output/GCfitdata_newGCs_fasttau_6inputs.mat; %or what have you
 
 %%
 %play with these:
 cellstoview=4;
 batchnum=3;
 
-% tmin=min(tran);
-% tmax=max(tran);
-% dt=tran(2)-tran(1);
 tmin=-.025;
 tmax=.2;
 dt=5e-5;
@@ -123,10 +120,11 @@ end
 set(fig,'PaperPositionMode','manual');
 set(fig,'PaperPosition',[0 0 8.5 11]);
 
+fid='../GC_fitting_output/newfits.ps';
 if(batchnum==1);
-    print(fig, 'newfits.ps', '-dpsc2');
+    print(fig, fid, '-dpsc2');
 else
-    print(fig, 'newfits.ps', '-dpsc2', '-append');
+    print(fig, fid, '-dpsc2', '-append');
 end
 end
 
