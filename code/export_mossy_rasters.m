@@ -1,5 +1,4 @@
 function [celltypes,rspstore]=export_mossy_rasters(pth)
-pth='../mossyfibers_final/';
 folders=dir(pth);
 folders = folders(find(cellfun(@isempty,strfind({folders.name},'.'))));
 folders = folders(find(cellfun(@isempty,strfind({folders.name},'modeling'))));

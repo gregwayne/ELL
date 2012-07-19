@@ -45,4 +45,4 @@ for modelcell=1:numGCs %loop over all the real GC's!
 end
 tran=GC_model.min_t+GC_model.dt:GC_model.dt:GC_model.max_t;
 %%
-save('GCfitdata_newGCs_fasttau_5inputs','GC_model','mean_mf','real_cells','tran','modeltraces','MSE','Wstore','gctypes','mftypes');
+save('../GC_fitting_output/GCfitdata_newGCs_fasttau_6inputs','GC_model','mean_mf','real_cells','tran','modeltraces','MSE','Wstore','gctypes','mftypes');

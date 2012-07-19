@@ -4,7 +4,7 @@ load ../GC_fitting_output/GCfitdata_newGCs_fasttau_6inputs.mat; %or what have yo
 %%
 %play with these:
 cellstoview=4;
-batchnum=3;
+batchnum=1;
 
 tmin=-.025;
 tmax=.2;
