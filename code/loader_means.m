@@ -1,11 +1,12 @@
 function meanV = loader_means(pth)
 %% find all the files
+pth='../gcs_mat';
 folders=dir(pth);
 folders = folders(find(cellfun(@isempty,strfind({folders.name},'.'))));
 % ^remove things that aren't directories
 
 clear files;
-for i=1:length(folders)-1
+for i=1:length(folders)
     files(i).celltype=folders(i).name;
     files(i).data=dir([pth '/' folders(i).name '/*.mat']);
 end
@@ -26,7 +27,7 @@ for i=1:length(files)
             name(strfind(name,'CD'):strfind(name,'CD')+1)=[];
         end
         name=[name ' ' num2str(j)];
-        meanV{count,1}=name;        
+        meanV{count,1}=name;
         meanV{count,2}=temp.values;
         if(strcmp(temp.units,' volt')) %fix units
             meanV{count,2}=meanV{count,2}*100;
