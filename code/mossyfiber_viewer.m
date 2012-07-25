@@ -1,16 +1,17 @@
-pth='../final_mossyfibers/';
+pth='../mossyfibers_final/';
 folders=dir(pth);
 folders = folders(find(cellfun(@isempty,strfind({folders.name},'.'))));
 folders = folders(find(cellfun(@isempty,strfind({folders.name},'modeling'))));
 
-%change these parameters to look at different cells/celltypes.
-celltype=2;
-cellnum=3;
+% change these parameters to look at different cells/celltypes.
+celltype=1;
+cellnum=6;
 
 
 files=dir([pth folders(celltype).name]);
 files(1:2)=[];
 files = files(find(cellfun(@isempty,strfind({files.name},'.DS_Store')))); %what why agh
+
 
 % for cellnum=1:length(files)
 data=struct2cell(load([pth folders(celltype).name '/' files(cellnum).name]));
@@ -34,7 +35,7 @@ rspstore=zeros(length(eventtimes),ceil((tmax+.1)/5e-5));
 for i=2:length(eventtimes)-1
     if((eventtimes(i)-eventtimes(i-1)>.2)&&(eventtimes(i+1)-eventtimes(i)>.2)) %only use well-isolated events
         mrkstart=find(spiketimes>eventtimes(i)-.1,1);
-        mrkend=find(spiketimes>eventtimes(i)+.3,1); %find the first spike past the end of the interval
+        mrkend=find(spiketimes>eventtimes(i+1),1); %find the first spike past the end of the interval
         if(mrkstart<mrkend)
             plot((spiketimes(mrkstart:mrkend-1)-eventtimes(i)),i,'b.');
         end
