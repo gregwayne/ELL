@@ -1,0 +1,34 @@
+%%
+clnum       = 3;
+num_trials  = 100;
+
+mossy_pars  = struct;
+
+spike_train             = zeros(4500,num_trials);
+mossy_pars.num_pulses   = med_data.num_pulses(clnum);
+mossy_pars.t0           = med_data.t0(clnum);
+mossy_pars.delta        = med_data.delta(clnum);
+mossy_pars.e0           = med_data.e0(clnum);
+mossy_pars.e_slope      = med_data.e_slope(clnum);
+mossy_pars.jitter_stdev = med_data.jitter_stdev(clnum);
+
+
+for trial=1:num_trials
+    
+    spike_train(:,trial) = draw_mossy(mossy_pars);
+    
+end
+
+figure(1);clf;
+subplot(2,1,1);
+hold on;
+for i=1:num_trials
+    if sum(spike_train(:,i))
+        plot(find(spike_train(:,i)),i,'b.');
+    end
+end
+xlim([0 4500])
+subplot(2,1,2);
+plot(mean(spike_train,2));
+
+% questions about cells 4 and 10
