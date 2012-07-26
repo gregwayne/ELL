@@ -15,7 +15,6 @@ mossy_pars.jitter_stdev = med_data.jitter_stdev(clnum);
 
 for trial=1:num_trials
     
-    size(draw_mossy(mossy_pars))
     spike_train(:,trial) = draw_mossy(mossy_pars);
     
 end

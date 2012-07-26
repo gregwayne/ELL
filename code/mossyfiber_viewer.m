@@ -3,16 +3,9 @@ folders=dir(pth);
 folders = folders(find(cellfun(@isempty,strfind({folders.name},'.'))));
 folders = folders(find(cellfun(@isempty,strfind({folders.name},'modeling'))));
 
-<<<<<<< HEAD
 % change these parameters to look at different cells/celltypes.
-celltype=1;
-cellnum=6;
-=======
-%change these parameters to look at different cells/celltypes.
 celltype=4;
-cellnum=10;
->>>>>>> generates mossy traces from a parameter record
-
+cellnum=4;
 
 files=dir([pth folders(celltype).name]);
 files(1:2)=[];
