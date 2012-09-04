@@ -1,4 +1,4 @@
-function [all_terms_calc] = gc_all_terms(e,m,p)
+function [all_terms_calc] = mixing_all_terms(e,m,p)
 
     n       = 1 - e - m - p;
 

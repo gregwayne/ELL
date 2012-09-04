@@ -63,7 +63,7 @@ for e=0:eps:1
     for m=0:eps:(1-e)
         for p=0:eps:(1-e-m)            
 
-            cst = gc_loss(e,m,p, all_terms_meas);
+            cst = mixing_loss(e,m,p, all_terms_meas);
             if cst < min_cst
                 
                 min_cst = cst;
@@ -75,9 +75,9 @@ for e=0:eps:1
     end
 end
 
-[calc] = gc_all_terms(theta(1),theta(2),theta(3));
+[calc] = mixing_all_terms(theta(1),theta(2),theta(3));
 nT          = sum(all_terms_meas);
-chi_squared = gc_loss(theta(1),theta(2),theta(3), all_terms_meas);
+chi_squared = mixing_loss(theta(1),theta(2),theta(3), all_terms_meas);
 dof         = length(all_terms_meas) - length(theta) - 1;
 
 % Probability that the null hypothesis would generate a less extreme value

@@ -54,7 +54,7 @@ for e=0:eps:1
     for m=0:eps:(1-e)
         for l=0:eps:(1-e-m)
             for p=0:eps:(1-e-m-l)            
-                cst = gc_loss_4types(e,m,l,p, all_terms_meas);
+                cst = mixing_loss_4types(e,m,l,p, all_terms_meas);
                 if cst < min_cst
 
                     min_cst = cst;
@@ -67,9 +67,9 @@ for e=0:eps:1
     end
 end
 
-[calc] = gc_all_terms_4types(theta(1),theta(2),theta(3),theta(4));
+[calc] = mixing_all_terms_4types(theta(1),theta(2),theta(3),theta(4));
 nT          = sum(all_terms_meas);
-chi_squared = gc_loss_4types(theta(1),theta(2),theta(3),theta(4), all_terms_meas);
+chi_squared = mixing_loss_4types(theta(1),theta(2),theta(3),theta(4), all_terms_meas);
 dof         = length(all_terms_meas) - length(theta) - 1;
 
 
