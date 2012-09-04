@@ -1,48 +1,81 @@
+%load data
+GC_model_initialize;
 data_initialize();
-GC_model_initialize();
 
-numGCs=size(real_cells,1);
-numMFs=size(mean_mf,1);
 
-%%
+%% fit inputs with lasso
 
-Wstore=zeros(numGCs,numMFs);
-modeltraces=zeros(numGCs,(GC_model.max_t-GC_model.min_t)/GC_model.dt);
-MSE=zeros(numGCs,1);
+Wstore              = zeros(numGCs,numMFs);
+% modeltraces         = zeros(numGCs,(GC_model.max_t-GC_model.min_t)/GC_model.dt);
+% MSE                 = zeros(numGCs,1);
+% tran                = GC_model.min_t+GC_model.dt:GC_model.dt:GC_model.max_t;
+DFmax               = 10; %max number of cells lasso is allowed to fit
 
-%set some parameters for our two fitting functions
-DFmax=6;
+if matlabpool('size')==0
+    matlabpool('open');
+end
 
-%these 3 are just if we're doing a grid search:
-wbounds=[0 1000];
-gridres=4;
-nreps=8;
+GC_models={};
+for i=1:numGCs
+    GC_models{i}    = GC_model;
+end
+MF_indices          = get_struct_of_celltypes(mftypes);
+GC_indices          = get_struct_of_celltypes(gctypes);
 
-clear stats;
+MF_indices.late = MF_indices.late + MF_indices.UBC; %UBC cells count as late
 
-for modelcell=1:numGCs %loop over all the real GC's!
+
+cells_to_fit        = 1:numGCs;
+tic
+parfor modelcell=cells_to_fit
     disp(['Fitting cell ' num2str(modelcell)]);
+
+    GC_model = GC_models{modelcell};
     GC_model.GC_to_model = modelcell;
     
-    % pick mossy inputs!
-    [GC_model,~] = fitterlasso(GC_model,mean_mf,real_cells,DFmax);
+    
+    inputs_to_use = regexp(gctypes{modelcell},'\s','split');
+    inputs_to_use(end) = []; %get rid of the number
+    indarray = MF_indices.(inputs_to_use{1});
+    for i=2:length(inputs_to_use);
+        indarray = indarray + MF_indices.(inputs_to_use{i});
+    end
+    
+    
+    % pick mossy inputs
+    [GC_model,~] = fitterlasso(GC_model,mean_mf,real_cells,indarray,DFmax);
 
-    ncells = length(nonzeros(GC_model.MF_input));
-    wmin = wbounds(1)*ones(ncells,1);
-    wmax = wbounds(2)*ones(ncells,1);
-
-    % fit weights!
+    % fit weights
 %     GC_model = fitterLS(GC_model,mean_mf,real_cells);
-% 	GC_model = fittergrid(GC_model,mean_mf,real_cells,wmin,wmax,wbounds,gridres,nreps);
     
 
     % and save our results
-    [~,modeltraces(modelcell,:),~] = simulate_current_based_convolution(GC_model,mean_mf,real_cells);
-    MSE(modelcell) = compute_model_error(GC_model,mean_mf,real_cells,'MSE');
-    w=zeros(1,numMFs);
-    w(nonzeros(GC_model.MF_input)) = GC_model.Ws(find(GC_model.MF_input));
-    Wstore(modelcell,:)= w;
+%     [~,modeltraces(modelcell,:),~] = simulate_current_based_convolution(GC_model,mean_mf,real_cells);
+%     MSE(modelcell) = compute_model_error(GC_model,mean_mf,real_cells,'MSE');
+    GC_models{modelcell} = GC_model;
 end
-tran=GC_model.min_t+GC_model.dt:GC_model.dt:GC_model.max_t;
+toc
+
+for modelcell = cells_to_fit
+    ind=nonzeros(GC_models{modelcell}.MF_input.*(GC_models{modelcell}.Ws>0));
+    Wstore(modelcell,ind) = nonzeros(GC_models{modelcell}.Ws);
+end
+
+%% sparsify the fit weight matrix Wstore to make Wsparse
+% old code: doesn't work with our new method of tweaking sparseness costs
+
+% Wfit=balanced(GC_model);
+% weightcost=1/(10*Wfit); %weight on L1 penalty (there's also an L0 penalty but we have that weight (=1e-5) hard-coded in right now)
+% Wsparse=zeros(size(Wstore));
+% tic
+% for cellnum=cells_to_fit
+%     cellnum
+%     [GC_model,dropcount]=sparseWeights(Wstore,cellnum,mean_mf,real_cells,weightcost);
+%     [nonzeros(GC_model.MF_input); nonzeros(GC_model.Ws)]
+%     Wsparse(cellnum,nonzeros(GC_model.MF_input))=nonzeros(GC_model.Ws);
+% end
+% toc
+% figure;hist(sum(Wsparse~=0,2))
 %%
-save('../GC_fitting_output/GCfitdata_newGCs_fasttau_6inputs','GC_model','mean_mf','real_cells','tran','modeltraces','MSE','Wstore','gctypes','mftypes');
+fid='../GC_fitting_output/aug29_10lasso';
+save(fid,'GC_model','mean_mf','real_cells','tran','Wstore','gctypes','mftypes','MSE','w','wtable','Wsparse');

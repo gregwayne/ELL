@@ -1,6 +1,6 @@
 function meanV = loader_means(pth)
 %% find all the files
-pth='../gcs_mat';
+
 folders=dir(pth);
 folders = folders(find(cellfun(@isempty,strfind({folders.name},'.'))));
 % ^remove things that aren't directories
@@ -11,9 +11,11 @@ for i=1:length(folders)
     files(i).data=dir([pth '/' folders(i).name '/*.mat']);
 end
 
+numfiles = sum(cellfun(@length,{files.data}));
+
 % extract mean responses from files
 count=1;
-meanV=cell(1,2);
+meanV=cell(numfiles,2);
 for i=1:length(files)
     for j=1:length(files(i).data)
         temp=struct2cell(load([pth '/' folders(i).name '/' files(i).data(j).name]));

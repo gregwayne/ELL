@@ -42,7 +42,7 @@ while 1
     GC_model.GC_to_model=get(uictrls.GC_to_use,'Value');
     GC_model.nreps=str2num(get(uictrls.runs_to_avg,'String'));
     
-    [realtrace,modeltrace,tran]=simulate_current_based_convolution(GC_model,mean_mf,real_cells);
+    [realtrace,modeltrace,tran]=simulate_current_based_expeuler(GC_model,rspstore,real_cells);
     
     set(0,'CurrentFigure',v_fig);
     set(h1,'YData',realtrace-mean(realtrace(1:200)));

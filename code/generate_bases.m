@@ -1,4 +1,4 @@
-function [celltypes,bfns] = generate_bases(type,varargin)
+function [celltypes,bfns] = generate_bases(type,pth,varargin)
 %function [celltypes,bfns] = generate_bases(type,varargin)
 % let's make simplified basis functions and see how changing them affect
 % the kernel!
@@ -11,7 +11,7 @@ function [celltypes,bfns] = generate_bases(type,varargin)
 % binary. Next I'll try accounting for cell response variability (still
 % assume NC's are zero, because they probably are!)
 
-rcell=loader_means('../gcs_mat');
+rcell=loader_means(pth);
 ncells=length(rcell);
 tmax=4500;
 bfns=zeros(ncells,tmax);

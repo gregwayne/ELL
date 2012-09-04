@@ -133,8 +133,6 @@ for i=fliplr(a)
     end
     
 %     axes(i); % specify the subplot
-get(fignum)
-i
     set(fignum,'CurrentAxes',i);
     
     % axis values and legend text

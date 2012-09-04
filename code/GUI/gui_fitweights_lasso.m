@@ -7,7 +7,7 @@ disp('fitting MFs/weights using Lasso...');
 GC_model=get_model_from_gui(uictrls);
 
 DFmax=3;
-[GC_model,~]=lassofitter(GC_model,mean_mf,real_cells,DFmax);
+[GC_model,~]=fitterlasso(GC_model,mean_mf,real_cells,DFmax);
 
 %let the folks at home know what happened
 disp(' ')

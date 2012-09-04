@@ -4,8 +4,8 @@ folders = folders(find(cellfun(@isempty,strfind({folders.name},'.'))));
 folders = folders(find(cellfun(@isempty,strfind({folders.name},'modeling'))));
 
 % change these parameters to look at different cells/celltypes.
-celltype=4;
-cellnum=4;
+celltype=1;
+cellnum=15;
 
 files=dir([pth folders(celltype).name]);
 files(1:2)=[];
@@ -38,7 +38,7 @@ for i=2:length(eventtimes)-1
         if(mrkstart<mrkend)
             plot((spiketimes(mrkstart:mrkend-1)-eventtimes(i)),i,'b.');
         end
-        plot(eventtimes(i+1)-eventtimes(i),i,'g.'); %marks the end of the trial
+%         plot(eventtimes(i+1)-eventtimes(i),i,'g.'); %marks the end of the trial
         spind=ceil((spiketimes(mrkstart:mrkend-1)-eventtimes(i)+.1)/5e-5);
         meanrsp(spind)=meanrsp(spind)+1;
         rspstore(i,spind)=1;
