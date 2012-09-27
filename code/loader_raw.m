@@ -35,12 +35,13 @@ for i=1:length(files)
             end
         end
         
+        expinfo = files(i).data(j).name(1:end-4);        
         name=files(i).celltype;
         name(name=='_')=' ';
         if(strfind(name,'mat'))
             name(strfind(name,'mat')-1:strfind(name,'mat')+2)=[];
         end
-        cellnames{count} = [name ' ' num2str(j)];
+        cellnames{count} = [name ' ' num2str(j) ': ' expinfo];
 
         events{count}=temp{eventind}.times/temp{recind}.interval + temp{recind}.start;
         recordings{count}=temp{recind}.values;

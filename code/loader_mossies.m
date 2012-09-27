@@ -63,7 +63,7 @@ for celltype=1:length(folders) %loop over folders
         %finally, format the name of this mossy fiber for display:
         menuname=folders(celltype).name;
         menuname(find(menuname=='_'):find(menuname=='_')+3)=[];
-        celltypes{cellcountnum}=[menuname ' ' num2str(cellnum)];
+        celltypes{cellcountnum}=[menuname ' ' num2str(cellnum) ' ' files(cellnum).name(1:end-4)]; %append this to include MF numbers
         cellcountnum=cellcountnum+1;
     end
 end

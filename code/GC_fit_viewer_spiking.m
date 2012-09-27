@@ -5,14 +5,12 @@ numGCs=size(Wstore,1);
 numMFs=size(Wstore,2);
 
 %%
-colors='rgbcmkrgbcmkrgbcmkrgbcmk';
-%play with these:
 cellstoview=4;
 batchnum=1;
 
-tmin=-.025;
-tmax=.2;
-dt=5e-5;
+tmin    = GC_model.min_t;
+tmax    = GC_model.max_t;
+dt      = GC_model.dt;
 tran=tmin+dt:dt:tmax;
 
 sparsityfactor=0.4;

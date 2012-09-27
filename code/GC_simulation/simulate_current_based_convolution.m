@@ -10,7 +10,11 @@ inputs      = zeros(ninputs,nsteps);
 
 vmean = zeros(1,nsteps);
 
-realtrace = real_cells(GC_model.GC_to_model,1:nsteps);
+if(~isempty(real_cells))
+    realtrace = real_cells(GC_model.GC_to_model,1:nsteps);
+else
+    realtrace=[];
+end
 
 for i=1:ninputs
     if(GC_model.MF_input(i)>0)

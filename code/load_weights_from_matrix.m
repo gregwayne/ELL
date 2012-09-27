@@ -9,3 +9,4 @@ end
 GC_model.Ws=padarray(GC_model.Ws,[0 3-length(GC_model.Ws)],'post');
 GC_model.MF_input=find(Wmat(gcnum,:));
 GC_model.MF_input=padarray(GC_model.MF_input,[0 3-length(GC_model.MF_input)],'post');
+GC_model.GC_to_model=gcnum;

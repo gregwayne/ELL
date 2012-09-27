@@ -9,7 +9,7 @@ GC_model.rmgs        = 1; % unitless
 GC_model.E_L         = -63; % (mV)
 GC_model.V_reset     = GC_model.E_L; % (mV);
 GC_model.tau_s       = .2; % (ms) -- look up
-GC_model.Ws          = GC_model.rmgs*[.5 .5 .5];
+GC_model.Ws          = GC_model.rmgs*[0 0 0];
 GC_model.spiking_on  = 0;
 
 GC_model.MF_input    = [0 0 0];

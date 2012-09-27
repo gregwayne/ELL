@@ -1,4 +1,4 @@
-function [realtrace,modeltrace,tran] = simulate_current_based_expeuler(GC_model,rspstore,real_cells)
+function modeltrace = simulate_current_based_expeuler(GC_model,rspstore)
 
 dt          = GC_model.dt;
 min_t       = GC_model.min_t;
@@ -14,7 +14,7 @@ thr         = GC_model.V_thresh;
 %make our inputs (convolved with synaptic kernel)
 for i=1:ninputs
     if(GC_model.MF_input(i)>0)
-        inputs(i,:) = draw_MF_input(rspstore{GC_model.MF_input(i)});
+        inputs(i,:) = interp(draw_MF_input(rspstore{GC_model.MF_input(i)}),10);
         inputs(i,:) = convolve_matrix_by_tau(dt,GC_model.tau_s,inputs(i,:));
     end
 end
@@ -41,6 +41,3 @@ end
 
 spiketimes(1)=[]; %get rid of the dummy spike
 modeltrace(spiketimes)=0; %get rid of the -Infs
-
-tran=times;
-realtrace=real_cells(GC_model.GC_to_model,1:nsteps);

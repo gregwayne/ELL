@@ -1,4 +1,4 @@
-function [real_cells, mean_mf,rspstore] = interp_data_timestep(real_cells,mean_mf,rspstore,interpfactor)
+function [real_cells, mean_mf] = interp_data_timestep(real_cells,mean_mf,interpfactor)
 
 numGCs=size(real_cells,1);
 numMFs=size(mean_mf,1);

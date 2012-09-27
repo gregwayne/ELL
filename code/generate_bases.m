@@ -4,6 +4,7 @@ function [celltypes,bfns] = generate_bases(type,pth,varargin)
 % the kernel!
 % basis types:
 % raw
+% nopad (raw but don't fill in stretches with no data)
 % thr (pass threshold value)
 % 2thr (pass thresholds: PCA, everyone else)
 
@@ -25,6 +26,9 @@ for i=1:ncells
     switch type
         case 'raw'
             bfns(i,:)=temp-mean(temp);
+        case 'nopad'
+            bfns(i,:)=nan(size(temp));
+            bfns(i,1:min(tmax+offset,celltime)) = rcell{i,2}(offset+1:min(tmax+offset,celltime));
         case 'thr'
             vmin=min(rcell{i,2});
             vmax=max(rcell{i,2});

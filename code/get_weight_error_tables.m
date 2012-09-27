@@ -5,6 +5,7 @@ GC_model_initialize();
 useweights=find(Wstore(usecell,:));
 inputs=convolve_mossies(GC_model,mean_mf(useweights,:));
 v=real_cells(usecell,:);
+v=v(~isnan(v));
 
 %deal our weights
 ncells=length(useweights);
@@ -25,6 +26,7 @@ w=zeros(size(wtable,1),maxwts);
 for i=1:size(wtable,1)
     inputs_shift    = [inputs(nonzeros(wtable(i,:)),:);ones(1,length(inputs))];
     inputs_shift    = [inputs_shift;-1*ones(1,length(inputs))];
+    inputs_shift    = inputs_shift(:,1:length(v));
     [lsfits,~] = lsqnonneg(inputs_shift',v');
     mse(i) = var(v - lsfits'*inputs_shift)/var(v);
     w(i,1:maxwts)   = padarray(lsfits(1:end-2)',[0 maxwts-length(lsfits)+2],'post');

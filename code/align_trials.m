@@ -4,8 +4,6 @@ dat=cell(ncells,1);
 
 minwin=4000;
 
-% fdat=cell(ncells,1); %fourier-transformed data (for filtering)
-
 for i=1:ncells %loop over cells
 %     sptimes{i}=zeros(length(events{i}),20); %store EOCD times (slow)
 
@@ -21,24 +19,25 @@ for i=1:ncells %loop over cells
         temp=recordings{i}(stimstart:min(stimstart+500+win,length(recordings{i})));
         dat{i}(j-1,1:length(temp))=temp;
         
-%         fdat{i}(j,:)=fft(dat{i}(j,:)-mean(dat{i}(j,:)));
-%         if(~isempty(find(dat{i}(j,:)>0)))
-%             [pks,locs]=findpeaks(dat{i}(j,:),'minpeakheight',0);
-%         else
-%             locs=[];
-%         end
-%         sptimes{i}(j,1:length(locs))=locs;
     end
 end
 
 %% look to see if it worked
-ind = 1;
-figure(1);clf;
-% hold on;
-imagesc(dat{ind}(1:end-1,:));
-%     plot(mean(dat{ind}),'k','linewidth',2)
-% 
-% xlim([0 4500])
-% ylim([-90 0])
-title(cellnames(ind));
 
+cellnum=38;
+gcexp = regexp(gctypes{cellnum},': ([0-9_]*[0-9_])','tokens');
+ind = find(1-cellfun(@isempty,strfind(cellnames,gcexp{:}{:})));
+ind=ind(1);
+
+figure(33);clf;
+% hold on;
+% imagesc(dat{ind}(1:end-1,:));
+
+sc=1;
+plot(bsxfun(@plus,dat{ind}(1:sc:end-1,:)',(1:ceil(size(dat{ind},1)/sc-1))*5));
+title(cellnames(ind),'interpreter','none');
+axis tight
+figure(2);clf;
+plot(mean(dat{ind}(1:end-1,:)),'k','linewidth',2)
+hold on;
+plot((1:length(real_cells(cellnum,:)))*.1,real_cells(cellnum,:));

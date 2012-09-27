@@ -18,8 +18,11 @@
 %
 %   numGCs and numMFs are just what it says on the box
 
-[mftypes,rspstore]=loader_mossies('../mossyfibers_final/','alltrials');
-[gctypes,real_cells]=generate_bases('raw','../gcs_mat');
+[mftypes,rspstore]=loader_mossies('../mossyfibers_final/','activetrials');
+[gctypes,real_cells]=generate_bases('nopad','../gcs_mat');
+
+fixind = find(1-cellfun(@isempty,strfind(mftypes,'20120419_003')));
+rspstore{fixind} = replace_20120419_003('alltrials');
 
 mean_mf=zeros(length(rspstore),size(rspstore{1},2));
 for i=1:length(rspstore)
@@ -44,8 +47,8 @@ end
 % don't make mistakes later on.
 
 
-rspstore={}; %too big
-[real_cells,mean_mf,rspstore] = interp_data_timestep(real_cells,mean_mf,rspstore,10);
+% rspstore={}; %too big
+[real_cells,mean_mf] = interp_data_timestep(real_cells,mean_mf,10);
 
 %scratch that, interpolating rspstore takes up too much memory. figure out
 %something more efficient!

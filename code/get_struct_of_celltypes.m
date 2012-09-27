@@ -1,6 +1,6 @@
 function cell_indices = get_struct_of_celltypes(celltypes)
 
-cleantypes = regexprep(celltypes,{'\d','\s'},'');
+cleantypes = regexprep(celltypes,{'\d','\s',':','_','unit','rig'},''); %strips off everything but letters
 typeinds = unique(cleantypes);
 
 cell_indices = struct;
